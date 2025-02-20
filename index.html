@@ -5,107 +5,188 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PNG to WebP Converter</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/browser-image-compression/2.0.1/browser-image-compression.min.js"></script>
     <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            min-height: 100vh;
+            background-color: #f5f5f7;
+            padding: 2rem 1rem;
         }
+
         .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 48rem;
+            margin: 0 auto;
         }
-        .drop-zone {
-            border: 2px dashed #ccc;
-            border-radius: 4px;
-            padding: 20px;
+
+        .converter-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1d1d1f;
             text-align: center;
-            margin: 20px 0;
-            background-color: #fafafa;
+            margin-bottom: 2rem;
         }
+
+        /* Quality control styles */
+        .quality-control {
+            background-color: #f5f5f7;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .quality-control label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 1rem;
+        }
+
+        .quality-control input[type="range"] {
+            width: 100%;
+            height: 0.5rem;
+            -webkit-appearance: none;
+            background: #d1d1d6;
+            border-radius: 0.25rem;
+            outline: none;
+        }
+
+        .quality-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            background: #000000;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .quality-control input[type="range"]::-webkit-slider-thumb:hover {
+            background: #333333;
+        }
+
+        /* Drop zone styles */
+        .drop-zone {
+            border: 2px dashed #d1d1d6;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.15s ease;
+        }
+
         .drop-zone.dragover {
-            border-color: #0066cc;
-            background-color: #f0f7ff;
+            border-color: #000000;
+            background-color: #f8f8f8;
         }
+
+        .drop-zone p {
+            color: #86868b;
+            margin-bottom: 1rem;
+        }
+
+        .upload-icon {
+            width: 3rem;
+            height: 3rem;
+            margin: 0 auto 1rem;
+            color: #86868b;
+        }
+
+        /* Button styles */
+        .btn {
+            background-color: #000000;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn:hover {
+            background-color: #333333;
+        }
+
         #fileInput {
             display: none;
         }
-        .btn {
-            background-color: #0066cc;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .btn:hover {
-            background-color: #0052a3;
-        }
-        .progress {
-            margin-top: 20px;
-        }
+
+        /* File list styles */
         #fileList {
-            margin-top: 20px;
+            margin-top: 2rem;
         }
+
         .file-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+            padding: 1rem;
+            background-color: #f5f5f7;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
         }
-        .file-item:last-child {
-            border-bottom: none;
+
+        .file-name {
+            font-size: 0.875rem;
+            color: #1d1d1f;
         }
+
         .status {
-            font-size: 14px;
+            font-size: 0.875rem;
         }
+
         .status.success {
-            color: #00a651;
+            color: #34c759;
         }
+
         .status.error {
-            color: #dc3545;
+            color: #ff3b30;
         }
-        .quality-control {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-        }
-        .quality-control label {
-            display: block;
-            margin-bottom: 10px;
-        }
-        .quality-control input {
+
+        #downloadAll {
             width: 100%;
-        }
-        .quality-value {
-            text-align: center;
-            font-weight: bold;
-            margin-top: 5px;
+            margin-top: 1rem;
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>PNG to WebP Converter</h1>
-        <div class="quality-control">
-            <label for="qualitySlider">WebP Quality: <span id="qualityValue">50</span>%</label>
-            <input type="range" id="qualitySlider" min="0" max="100" value="50">
+        <div class="converter-card">
+            <h1>PNG to WebP Converter</h1>
+            
+            <div class="quality-control">
+                <label for="qualitySlider">WebP Quality: <span id="qualityValue">50</span>%</label>
+                <input type="range" id="qualitySlider" min="0" max="100" value="50">
+            </div>
+
+            <div class="drop-zone" id="dropZone">
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5-5 5 5m-5-5v12"/>
+                </svg>
+                <p>Drag and drop PNG files here or</p>
+                <input type="file" id="fileInput" accept=".png" multiple>
+                <button class="btn" onclick="document.getElementById('fileInput').click()">Select Files</button>
+            </div>
+
+            <div id="fileList"></div>
+            <button id="downloadAll" class="btn">Download All Files</button>
         </div>
-        <div class="drop-zone" id="dropZone">
-            <p>Drag and drop PNG files here or</p>
-            <input type="file" id="fileInput" accept=".png" multiple>
-            <button class="btn" onclick="document.getElementById('fileInput').click()">Select Files</button>
-        </div>
-        <div id="fileList"></div>
-        <button id="downloadAll" class="btn" style="display: none; margin-top: 20px;">Download All Files</button>
     </div>
 
     <script>
@@ -113,31 +194,13 @@
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
         const downloadAllBtn = document.getElementById('downloadAll');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityValue = document.getElementById('qualityValue');
         let convertedFiles = [];
 
-        // Handle download all button
-        downloadAllBtn.addEventListener('click', async () => {
-            if (convertedFiles.length === 0) return;
-
-            const zip = new JSZip();
-            
-            // Add all converted files to the zip
-            convertedFiles.forEach(file => {
-                zip.file(file.name, file.blob);
-            });
-
-            // Generate and download the zip file
-            const zipBlob = await zip.generateAsync({type: "blob"});
-            const downloadUrl = URL.createObjectURL(zipBlob);
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = "converted_webp_files.zip";
-            a.click();
-            URL.revokeObjectURL(downloadUrl);
-
-            // Clear the converted files array
-            convertedFiles = [];
-            downloadAllBtn.style.display = 'none';
+        // Quality slider handler
+        qualitySlider.addEventListener('input', (e) => {
+            qualityValue.textContent = e.target.value;
         });
 
         // Prevent default drag behaviors
@@ -146,56 +209,43 @@
             document.body.addEventListener(eventName, preventDefaults, false);
         });
 
-        // Highlight drop zone when dragging over it
+        // Handle drop zone highlighting
         ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('dragover');
+            });
         });
 
         ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('dragover');
+            });
         });
 
-        // Handle dropped files
-        dropZone.addEventListener('drop', handleDrop, false);
-        fileInput.addEventListener('change', handleFiles, false);
-
-        // Handle quality slider
-        const qualitySlider = document.getElementById('qualitySlider');
-        const qualityValue = document.getElementById('qualityValue');
-        
-        qualitySlider.addEventListener('input', function(e) {
-            qualityValue.textContent = e.target.value;
+        // Handle file selection
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            handleFiles(files);
         });
 
-        function preventDefaults (e) {
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function preventDefaults(e) {
             e.preventDefault();
             e.stopPropagation();
         }
 
-        function highlight(e) {
-            dropZone.classList.add('dragover');
-        }
-
-        function unhighlight(e) {
-            dropZone.classList.remove('dragover');
-        }
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles({ target: { files } });
-        }
-
-        function handleFiles(e) {
-            const files = [...e.target.files];
-            files.forEach(processFile);
+        function handleFiles(files) {
+            [...files].forEach(processFile);
         }
 
         function createFileListItem(file) {
             const item = document.createElement('div');
             item.className = 'file-item';
             item.innerHTML = `
-                <span>${file.name}</span>
+                <span class="file-name">${file.name}</span>
                 <span class="status">Processing...</span>
             `;
             fileList.appendChild(item);
@@ -205,16 +255,16 @@
         async function processFile(file) {
             if (!file.type.includes('png')) {
                 const item = createFileListItem(file);
-                item.querySelector('.status').textContent = 'Error: Not a PNG file';
-                item.querySelector('.status').classList.add('error');
+                const status = item.querySelector('.status');
+                status.textContent = 'Error: Not a PNG file';
+                status.classList.add('error');
                 return;
             }
 
             const item = createFileListItem(file);
-            const statusElement = item.querySelector('.status');
+            const status = item.querySelector('.status');
 
             try {
-                // Convert PNG to WebP
                 const image = await createImageBitmap(file);
                 const canvas = document.createElement('canvas');
                 canvas.width = image.width;
@@ -223,28 +273,42 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(image, 0, 0);
 
+                const quality = qualitySlider.value / 100;
                 const webpBlob = await new Promise(resolve => {
-                    const quality = document.getElementById('qualitySlider').value / 100;
                     canvas.toBlob(resolve, 'image/webp', quality);
                 });
 
-                // Store the converted file
                 convertedFiles.push({
                     name: file.name.replace('.png', '.webp'),
                     blob: webpBlob
                 });
 
-                // Show download all button if there are files
                 downloadAllBtn.style.display = 'block';
-
-                statusElement.textContent = 'Converted successfully';
-                statusElement.classList.add('success');
+                status.textContent = 'Converted successfully';
+                status.classList.add('success');
             } catch (error) {
                 console.error('Error converting file:', error);
-                statusElement.textContent = 'Error converting file';
-                statusElement.classList.add('error');
+                status.textContent = 'Error converting file';
+                status.classList.add('error');
             }
         }
+
+        downloadAllBtn.addEventListener('click', async () => {
+            if (convertedFiles.length === 0) return;
+
+            const zip = new JSZip();
+            convertedFiles.forEach(file => {
+                zip.file(file.name, file.blob);
+            });
+
+            const zipBlob = await zip.generateAsync({type: "blob"});
+            const downloadUrl = URL.createObjectURL(zipBlob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = "converted_webp_files.zip";
+            a.click();
+            URL.revokeObjectURL(downloadUrl);
+        });
     </script>
 </body>
 </html>
