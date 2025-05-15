@@ -166,7 +166,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
+            padding: 20px;
             border-bottom: 1px solid var(--border-color);
             transition: background-color 0.2s;
         }
@@ -179,9 +179,79 @@
             border-bottom: none;
         }
         
+        .file-thumbnail {
+            width: 70px;
+            height: 70px;
+            min-width: 70px;
+            margin-right: 20px;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: var(--drop-zone-bg);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .thumbnail-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .split-thumbnail {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            min-width: 90px;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        .thumbnail-comparison {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .file-thumbnail:hover .thumbnail-comparison {
+            transform: scale(1.08);
+        }
+        
+        .thumbnail-half {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .thumbnail-divider {
+            width: 3px;
+            height: 100%;
+            background-color: var(--primary-color);
+            z-index: 1;
+        }
+        
+        .format-badge {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-size: 10px;
+            padding: 3px 4px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+        
         .file-info {
             display: flex;
             flex-direction: column;
+            flex: 1;
+            margin-right: 15px;
         }
         
         .file-name {
@@ -192,6 +262,47 @@
         .file-size {
             font-size: 12px;
             color: var(--secondary-text);
+        }
+
+        .file-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            min-width: 160px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--slider-track);
+            border-radius: 4px;
+            margin-bottom: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10px;
+            color: var(--text-color);
+            font-weight: 500;
+            text-shadow: 0 0 2px var(--container-bg);
+        }
+
+        .processing-time {
+            font-size: 11px;
+            color: var(--secondary-text);
+            margin-top: 2px;
         }
 
         .status {
@@ -405,121 +516,7 @@
             cursor: pointer;
         }
 
-        /* Image Preview Styles */
-        .preview-container {
-            margin: 25px 0;
-            background-color: var(--panel-bg);
-            border-radius: 8px;
-            box-shadow: 0 2px 5px var(--shadow-color);
-            overflow: hidden;
-        }
-        
-        .preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .preview-title {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-        
-        .preview-toggle {
-            background: none;
-            border: none;
-            color: var(--primary-color);
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .preview-toggle:hover {
-            text-decoration: underline;
-        }
-        
-        .preview-content {
-            padding: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        
-        .preview-wrapper {
-            flex: 1;
-            min-width: 200px;
-            max-width: 100%;
-        }
-        
-        .preview-label {
-            font-weight: 500;
-            margin-bottom: 10px;
-            display: block;
-        }
-        
-        .preview-image {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px var(--shadow-color);
-        }
-        
-        .image-info {
-            margin-top: 10px;
-            font-size: 13px;
-            color: var(--secondary-text);
-        }
-        
-        .image-info > div {
-            margin-bottom: 4px;
-        }
-        
-        .comparison-view {
-            display: flex;
-            position: relative;
-            overflow: hidden;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px var(--shadow-color);
-        }
-        
-        .comparison-original,
-        .comparison-converted {
-            width: 100%;
-            position: relative;
-        }
-        
-        .comparison-separator {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background-color: var(--primary-color);
-            cursor: ew-resize;
-            z-index: 2;
-        }
-        
-        .comparison-label {
-            position: absolute;
-            top: 10px;
-            background-color: rgba(0,0,0,0.7);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 12px;
-            z-index: 1;
-        }
-        
-        .comparison-label.original {
-            left: 10px;
-        }
-        
-        .comparison-label.converted {
-            right: 10px;
-        }
+
         
         /* Responsive styles */
         @media (max-width: 768px) {
@@ -545,13 +542,80 @@
                 font-size: 14px;
             }
             
-            .preview-content {
-                flex-direction: column;
+
+            
+            .file-item {
+                flex-wrap: wrap;
             }
             
-            .preview-wrapper {
-                max-width: 100%;
+            .file-thumbnail {
+                margin-bottom: 10px;
             }
+            
+            .file-info {
+                min-width: 60%;
+            }
+            
+            .file-status {
+                width: 100%;
+                align-items: flex-start;
+                margin-top: 10px;
+            }
+        }
+
+        .processing-time {
+            font-size: 11px;
+            color: var(--secondary-text);
+            margin-top: 2px;
+        }
+
+        .batch-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: var(--highlight-color);
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .batch-info {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .file-stats {
+            font-size: 12px;
+            color: var(--secondary-text);
+            margin-top: 8px;
+            padding-top: 5px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        input[type="range"].disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Updated button styling for the download/retry buttons */
+        .file-status .btn {
+            margin-top: 10px;
+            padding: 8px 14px;
+            font-size: 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .file-status .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .file-status .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -687,6 +751,23 @@
             <label for="qualitySlider">Quality: <span id="qualityValue">90</span>%</label>
             <input type="range" id="qualitySlider" min="0" max="100" value="90">
             <div class="quality-note">Note: Quality setting applies to lossy formats (WebP, JPEG, AVIF)</div>
+            
+            <div class="size-optimization">
+                <div class="checkbox-option">
+                    <input type="checkbox" id="sizeOptimizationToggle" />
+                    <label for="sizeOptimizationToggle">Optimize for target file size</label>
+                </div>
+                
+                <div id="sizeOptimizationOptions" style="display: none; margin-top: 10px;">
+                    <div class="option-group">
+                        <label for="targetFileSize">Target Size (KB):</label>
+                        <input type="number" id="targetFileSize" min="1" value="200" style="width: 80px; margin-left: 10px; padding: 5px;">
+                    </div>
+                    <div class="quality-note" style="margin-top: 5px;">
+                        The converter will automatically adjust quality to meet the target size.
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="drop-zone" id="dropZone">
@@ -697,37 +778,9 @@
             </button>
         </div>
 
-        <div id="previewSection" style="display: none;" class="preview-container">
-            <div class="preview-header">
-                <div class="preview-title">Image Preview</div>
-                <button class="preview-toggle" id="toggleComparison">
-                    <span id="comparisonToggleText">Show Comparison View</span>
-                </button>
-            </div>
-            <div class="preview-content" id="previewContent">
-                <div class="preview-wrapper">
-                    <span class="preview-label">Original Image</span>
-                    <img id="originalPreview" class="preview-image" alt="Original image preview">
-                    <div class="image-info" id="originalInfo"></div>
-                </div>
-                <div class="preview-wrapper">
-                    <span class="preview-label">Converted Image</span>
-                    <img id="convertedPreview" class="preview-image" alt="Converted image preview">
-                    <div class="image-info" id="convertedInfo"></div>
-                </div>
-            </div>
-            <div id="comparisonView" style="display: none;" class="preview-content">
-                <div class="comparison-view" id="comparisonContainer">
-                    <div class="comparison-label original">Original</div>
-                    <div class="comparison-label converted">Converted</div>
-                    <div class="comparison-separator" id="comparisonSeparator"></div>
-                </div>
-            </div>
-        </div>
-
         <div id="fileList"></div>
         
-        <button id="downloadAll" class="btn" style="display: none; margin-top: 20px;">
+        <button id="downloadAll" class="btn" style="display: none; margin-top: 20px; padding: 12px 24px; transition: all 0.3s ease;">
             <span style="margin-right: 8px;">⬇️</span> Download All Files
         </button>
     </div>
@@ -739,21 +792,125 @@
         const fileList = document.getElementById('fileList');
         const downloadAllBtn = document.getElementById('downloadAll');
         const themeToggle = document.getElementById('themeToggle');
-        const previewSection = document.getElementById('previewSection');
-        const originalPreview = document.getElementById('originalPreview');
-        const convertedPreview = document.getElementById('convertedPreview');
-        const originalInfo = document.getElementById('originalInfo');
-        const convertedInfo = document.getElementById('convertedInfo');
-        const toggleComparison = document.getElementById('toggleComparison');
-        const comparisonToggleText = document.getElementById('comparisonToggleText');
-        const comparisonView = document.getElementById('comparisonView');
-        const previewContent = document.getElementById('previewContent');
-        const comparisonContainer = document.getElementById('comparisonContainer');
-        const comparisonSeparator = document.getElementById('comparisonSeparator');
+        const outputFormatSelect = document.getElementById('outputFormat');
         
         let convertedFiles = [];
-        let currentFile = null;
-        let currentConvertedBlob = null;
+        // Worker queue for processing files with concurrency limit
+        const processingQueue = [];
+        const maxConcurrentProcessing = 3; // Process up to 3 files simultaneously
+        let activeProcessingCount = 0;
+        let isPaused = false;
+        
+        // Browser compatibility
+        const supportedFormats = {
+            webp: false,
+            avif: false,
+            jpeg: true, // Almost universally supported
+            png: true,  // Almost universally supported
+            gif: true   // Almost universally supported
+        };
+        
+        // Check browser compatibility for different image formats
+        function checkBrowserCompatibility() {
+            return new Promise(resolve => {
+                // Check WebP support
+                const webpImage = new Image();
+                webpImage.onload = function() { 
+                    supportedFormats.webp = true;
+                    checkAvif();
+                };
+                webpImage.onerror = function() { 
+                    supportedFormats.webp = false;
+                    checkAvif();
+                };
+                webpImage.src = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA=';
+                
+                // Check AVIF support
+                function checkAvif() {
+                    const avifImage = new Image();
+                    avifImage.onload = function() { 
+                        supportedFormats.avif = true;
+                        showCompatibilityInfo();
+                        resolve();
+                    };
+                    avifImage.onerror = function() { 
+                        supportedFormats.avif = false;
+                        showCompatibilityInfo();
+                        resolve();
+                    };
+                    avifImage.src = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=';
+                }
+                
+                // Create a notification about browser compatibility
+                function showCompatibilityInfo() {
+                    // Create a compatibility info container
+                    const compatInfo = document.createElement('div');
+                    compatInfo.className = 'compat-info';
+                    compatInfo.style.margin = '10px 0';
+                    compatInfo.style.padding = '10px 15px';
+                    compatInfo.style.borderRadius = '8px';
+                    compatInfo.style.backgroundColor = 'var(--highlight-color)';
+                    compatInfo.style.fontSize = '14px';
+                    
+                    // Prepare a message based on compatibility
+                    let compatMessage = '<strong>Browser Format Support:</strong>';
+                    for (const [format, supported] of Object.entries(supportedFormats)) {
+                        compatMessage += `<span style="margin: 0 5px; display: inline-block; ${supported ? 'color: var(--success-color)' : 'color: var(--error-color)'}">
+                            ${format.toUpperCase()}: ${supported ? '✓' : '✗'}
+                        </span>`;
+                    }
+                    
+                    // Add unsupported formats to the compatibility message
+                    const unsupportedFormats = Object.entries(supportedFormats)
+                        .filter(([_, supported]) => !supported)
+                        .map(([format]) => format.toUpperCase());
+                    
+                    if (unsupportedFormats.length > 0) {
+                        compatMessage += `<div style="margin-top: 5px; font-style: italic;">Note: Your browser doesn't support ${unsupportedFormats.join(', ')}. Consider using other formats for better compatibility.</div>`;
+                    }
+                    
+                    compatInfo.innerHTML = compatMessage;
+                    
+                    // Insert before the file list
+                    const container = document.querySelector('.container');
+                    container.insertBefore(compatInfo, fileList);
+                    
+                    // Update output format options
+                    updateFormatOptions();
+                }
+            });
+        }
+        
+        // Update format dropdown based on browser support
+        function updateFormatOptionsBasedOnSupport() {
+            // Loop through all options
+            Array.from(outputFormatSelect.options).forEach(option => {
+                const format = option.value;
+                
+                // For unsupported formats, add a warning indicator
+                if (!supportedFormats[format]) {
+                    option.textContent = `${option.textContent} (not supported)`;
+                    option.style.color = 'var(--error-color)';
+                }
+            });
+            
+            // Select the first supported format as default
+            const firstSupportedFormat = Object.entries(supportedFormats)
+                .find(([_, supported]) => supported)?.[0];
+                
+            if (firstSupportedFormat && firstSupportedFormat !== outputFormatSelect.value) {
+                outputFormatSelect.value = firstSupportedFormat;
+                
+                // Trigger the change event to update UI
+                const event = new Event('change');
+                outputFormatSelect.dispatchEvent(event);
+            }
+        }
+        
+        // Initialize browser compatibility check
+        checkBrowserCompatibility().then(() => {
+            updateFormatOptionsBasedOnSupport();
+        });
         
         // Theme management
         function initTheme() {
@@ -788,127 +945,6 @@
         // Theme toggle event listener
         themeToggle.addEventListener('click', toggleTheme);
         
-        // Preview mode toggle
-        toggleComparison.addEventListener('click', function() {
-            const isComparisonVisible = comparisonView.style.display !== 'none';
-            
-            if (isComparisonVisible) {
-                // Switch to side by side view
-                comparisonView.style.display = 'none';
-                previewContent.style.display = 'flex';
-                comparisonToggleText.textContent = 'Show Comparison View';
-            } else {
-                // Switch to comparison view
-                setupComparisonView();
-                comparisonView.style.display = 'block';
-                previewContent.style.display = 'none';
-                comparisonToggleText.textContent = 'Show Side by Side View';
-            }
-        });
-        
-        // Setup comparison slider
-        function setupComparisonView() {
-            if (!currentFile || !currentConvertedBlob) return;
-            
-            comparisonContainer.innerHTML = `
-                <div class="comparison-label original">Original</div>
-                <div class="comparison-label converted">Converted</div>
-                <div class="comparison-separator" id="comparisonSeparator"></div>
-                <div style="position: absolute; width: 100%; height: 100%; overflow: hidden;">
-                    <img src="${URL.createObjectURL(currentFile)}" style="width: 100%; height: 100%; object-fit: contain;">
-                </div>
-                <div style="position: absolute; width: 50%; height: 100%; overflow: hidden; right: 0;">
-                    <img src="${URL.createObjectURL(currentConvertedBlob)}" style="width: 200%; height: 100%; object-fit: contain; object-position: right;">
-                </div>
-            `;
-            
-            const separator = comparisonContainer.querySelector('.comparison-separator');
-            separator.style.left = '50%';
-            
-            // Make separator draggable
-            separator.addEventListener('mousedown', initDrag);
-            separator.addEventListener('touchstart', initDrag);
-            
-            function initDrag(e) {
-                e.preventDefault();
-                document.addEventListener('mousemove', dragMove);
-                document.addEventListener('touchmove', dragMove);
-                document.addEventListener('mouseup', dragEnd);
-                document.addEventListener('touchend', dragEnd);
-            }
-            
-            function dragMove(e) {
-                const containerRect = comparisonContainer.getBoundingClientRect();
-                const x = (e.clientX || e.touches[0].clientX) - containerRect.left;
-                const percent = Math.max(0, Math.min(100, (x / containerRect.width) * 100));
-                
-                separator.style.left = `${percent}%`;
-                const convertedDiv = comparisonContainer.querySelector('div:nth-child(5)');
-                convertedDiv.style.width = `${100 - percent}%`;
-            }
-            
-            function dragEnd() {
-                document.removeEventListener('mousemove', dragMove);
-                document.removeEventListener('touchmove', dragMove);
-                document.removeEventListener('mouseup', dragEnd);
-                document.removeEventListener('touchend', dragEnd);
-            }
-        }
-        
-        // Display image previews
-        function displayImagePreviews(file, convertedBlob) {
-            // Store current file and blob for comparison view
-            currentFile = file;
-            currentConvertedBlob = convertedBlob;
-            
-            // Create URLs for the images
-            const originalUrl = URL.createObjectURL(file);
-            const convertedUrl = URL.createObjectURL(convertedBlob);
-            
-            // Set the image sources
-            originalPreview.src = originalUrl;
-            convertedPreview.src = convertedUrl;
-            
-            // Show the preview section
-            previewSection.style.display = 'block';
-            
-            // Display original image info
-            getImageDimensions(originalUrl).then(dims => {
-                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                originalInfo.innerHTML = `
-                    <div>Dimensions: ${dims.width} × ${dims.height}px</div>
-                    <div>File Size: ${fileSizeMB} MB</div>
-                    <div>Format: ${file.type.split('/')[1].toUpperCase()}</div>
-                `;
-            });
-            
-            // Display converted image info
-            getImageDimensions(convertedUrl).then(dims => {
-                const fileSizeMB = (convertedBlob.size / (1024 * 1024)).toFixed(2);
-                const compression = ((1 - (convertedBlob.size / file.size)) * 100).toFixed(1);
-                const format = getMimeType(document.getElementById('outputFormat').value);
-                
-                convertedInfo.innerHTML = `
-                    <div>Dimensions: ${dims.width} × ${dims.height}px</div>
-                    <div>File Size: ${fileSizeMB} MB</div>
-                    <div>Format: ${format.split('/')[1].toUpperCase()}</div>
-                    <div>Compression: ${compression}% smaller</div>
-                `;
-            });
-        }
-        
-        // Get image dimensions
-        function getImageDimensions(url) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = function() {
-                    resolve({ width: this.width, height: this.height });
-                };
-                img.onerror = reject;
-                img.src = url;
-            });
-        }
-
         // Handle download all button
         downloadAllBtn.addEventListener('click', async () => {
             if (convertedFiles.length === 0) return;
@@ -984,6 +1020,9 @@
         const scalePercent = document.getElementById('scalePercent');
         const pngCompression = document.getElementById('pngCompression');
         const pngCompressionValue = document.getElementById('pngCompressionValue');
+        const sizeOptimizationToggle = document.getElementById('sizeOptimizationToggle');
+        const sizeOptimizationOptions = document.getElementById('sizeOptimizationOptions');
+        const targetFileSize = document.getElementById('targetFileSize');
         
         // Format-specific panels
         const webpOptions = document.getElementById('webpOptions');
@@ -1145,45 +1184,122 @@
             // Clear existing file list when new batch is selected
             if (files.length > 0) {
                 fileList.innerHTML = '';
+                // Show batch controls if multiple files
+                if (files.length > 1) {
+                    setupBatchControls(files.length);
+                }
             }
             
-            // Process all files
-            files.forEach((file, index) => {
-                processFile(file);
+            // Add all files to the queue
+            files.forEach((file) => {
+                // Create file list item for each file
+                const item = createFileListItem(file);
+                
+                // Add to processing queue
+                processingQueue.push({
+                    file,
+                    item
+                });
             });
+            
+            // Start processing the queue
+            processQueue();
         }
 
-        function createFileListItem(file) {
-            const item = document.createElement('div');
-            item.className = 'file-item';
-            
-            // Format file size nicely
-            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            
-            item.innerHTML = `
-                <div class="file-info">
-                    <div class="file-name">${file.name}</div>
-                    <div class="file-size">${fileSizeMB} MB</div>
+        function setupBatchControls(fileCount) {
+            // Create batch processing controls
+            const batchControlsContainer = document.createElement('div');
+            batchControlsContainer.className = 'batch-controls';
+            batchControlsContainer.innerHTML = `
+                <div class="batch-info">Processing batch: <span id="processedCount">0</span>/${fileCount} files</div>
+                <div class="batch-actions">
+                    <button id="pauseResumeBtn" class="btn">
+                        <span id="pauseResumeIcon">⏸️</span> 
+                        <span id="pauseResumeText">Pause</span>
+                    </button>
                 </div>
-                <span class="status">Processing...</span>
             `;
-            fileList.appendChild(item);
-            return item;
+            
+            // Insert at the top of the file list
+            fileList.insertBefore(batchControlsContainer, fileList.firstChild);
+            
+            // Setup pause/resume button
+            const pauseResumeBtn = document.getElementById('pauseResumeBtn');
+            pauseResumeBtn.addEventListener('click', togglePauseResume);
         }
 
-        async function processFile(file) {
+        function togglePauseResume() {
+            isPaused = !isPaused;
+            const pauseResumeText = document.getElementById('pauseResumeText');
+            const pauseResumeIcon = document.getElementById('pauseResumeIcon');
+            
+            if (isPaused) {
+                pauseResumeText.textContent = 'Resume';
+                pauseResumeIcon.textContent = '▶️';
+            } else {
+                pauseResumeText.textContent = 'Pause';
+                pauseResumeIcon.textContent = '⏸️';
+                processQueue(); // Resume processing
+            }
+        }
+
+        function updateBatchProgress() {
+            const processedCount = document.getElementById('processedCount');
+            if (processedCount) {
+                const totalProcessed = document.querySelectorAll('.status.success, .status.error').length;
+                processedCount.textContent = totalProcessed;
+            }
+        }
+
+        function processQueue() {
+            // Don't process if paused
+            if (isPaused) return;
+            
+            // Process files up to the concurrency limit
+            while (processingQueue.length > 0 && activeProcessingCount < maxConcurrentProcessing) {
+                const nextItem = processingQueue.shift();
+                activeProcessingCount++;
+                
+                // Process file
+                processFile(nextItem.file, nextItem.item)
+                    .finally(() => {
+                        activeProcessingCount--;
+                        updateBatchProgress();
+                        processQueue(); // Continue processing queue
+                    });
+            }
+        }
+
+        async function processFile(file, item = null) {
+            // If item wasn't provided, create it (for backward compatibility)
+            if (!item) {
+                item = createFileListItem(file);
+            }
+            
+            const statusElement = item.querySelector('.status');
+            const progressBar = item.querySelector('.progress-bar');
+            const progressText = item.querySelector('.progress-text');
+            const processingTimeElement = item.querySelector('.processing-time');
+            
+            // Update status to show we're starting
+            statusElement.textContent = 'Initializing...';
+            
             // Check if file is a supported image
             if (!file.type.startsWith('image/')) {
-                const item = createFileListItem(file);
-                item.querySelector('.status').textContent = 'Error: Not a supported image file';
-                item.querySelector('.status').classList.add('error');
+                updateProgress(progressBar, progressText, 100);
+                statusElement.textContent = 'Error: Not a supported image file';
+                statusElement.classList.add('error');
                 return;
             }
 
-            const item = createFileListItem(file);
-            const statusElement = item.querySelector('.status');
+            // Start timing the processing
+            const startTime = performance.now();
 
             try {
+                // Update progress
+                updateProgress(progressBar, progressText, 10);
+                statusElement.textContent = 'Loading image...';
+                
                 // Update image dimensions for resize options
                 updateImageDimensions(file);
                 
@@ -1191,8 +1307,17 @@
                 const outputFormat = document.getElementById('outputFormat').value;
                 const mimeType = getMimeType(outputFormat);
                 
+                // Update progress
+                updateProgress(progressBar, progressText, 25);
+                statusElement.textContent = 'Processing image...';
+                
                 // Create image from file
                 const image = await createImageBitmap(file);
+                
+                // Update progress
+                updateProgress(progressBar, progressText, 40);
+                statusElement.textContent = 'Converting format...';
+                
                 const canvas = document.createElement('canvas');
                 
                 // Handle resize if enabled
@@ -1221,6 +1346,10 @@
                 // Prepare conversion options
                 let convertOptions = {};
                 
+                // Update progress
+                updateProgress(progressBar, progressText, 60);
+                statusElement.textContent = 'Applying settings...';
+                
                 // Format-specific options
                 switch (outputFormat) {
                     case 'webp':
@@ -1247,10 +1376,35 @@
                 // Would need a dedicated image processing library to fully implement
                 const preserveMetadata = document.getElementById('preserveMetadata').checked;
                 
-                // Perform the conversion
-                const convertedBlob = await new Promise(resolve => {
-                    canvas.toBlob(resolve, mimeType, quality);
-                });
+                // Update progress
+                updateProgress(progressBar, progressText, 75);
+                statusElement.textContent = 'Encoding image...';
+                
+                let convertedBlob;
+                
+                // Check if size optimization is enabled
+                if (sizeOptimizationToggle.checked && ['webp', 'jpeg', 'avif'].includes(outputFormat)) {
+                    statusElement.textContent = 'Optimizing for target size...';
+                    
+                    // Get target size in KB
+                    const targetSizeKB = parseInt(targetFileSize.value) || 200;
+                    
+                    // Find optimal quality to match target size
+                    const result = await findOptimalQuality(file, targetSizeKB, mimeType, canvas);
+                    convertedBlob = result.blob;
+                    
+                    // Update status for user feedback
+                    statusElement.textContent = `Optimizing (target: ${targetSizeKB}KB)...`;
+                } else {
+                    // Perform the normal conversion
+                    convertedBlob = await new Promise(resolve => {
+                        canvas.toBlob(resolve, mimeType, quality);
+                    });
+                }
+                
+                // Update progress
+                updateProgress(progressBar, progressText, 90);
+                statusElement.textContent = 'Finalizing...';
                 
                 // Handle the case where the browser doesn't support the requested format
                 if (!convertedBlob) {
@@ -1270,16 +1424,26 @@
                 // Show download all button if there are files
                 downloadAllBtn.style.display = 'block';
                 
-                // Display image previews
-                displayImagePreviews(file, convertedBlob);
+                // Calculate processing time
+                const endTime = performance.now();
+                const processingTime = ((endTime - startTime) / 1000).toFixed(2);
+                processingTimeElement.textContent = `Processing time: ${processingTime}s`;
+                processingTimeElement.style.display = 'block';
 
+                // Calculate size reduction
+                const originalSize = file.size;
+                const newSize = convertedBlob.size;
+                const sizeReduction = ((1 - (newSize / originalSize)) * 100).toFixed(1);
+                
+                // Complete progress bar
+                updateProgress(progressBar, progressText, 100);
+                
                 // Add download button to file item
                 const downloadButton = document.createElement('button');
                 downloadButton.className = 'btn';
                 downloadButton.innerHTML = `<span style="margin-right: 5px;">⬇️</span> Download`;
                 downloadButton.style.fontSize = '12px';
-                downloadButton.style.padding = '6px 12px';
-                downloadButton.style.marginLeft = '10px';
+                downloadButton.style.padding = '8px 14px';
                 
                 downloadButton.addEventListener('click', () => {
                     const url = URL.createObjectURL(convertedBlob);
@@ -1290,16 +1454,194 @@
                     URL.revokeObjectURL(url);
                 });
                 
-                const statusContainer = item.querySelector('.status').parentNode;
-                statusContainer.appendChild(downloadButton);
+                const statusContainer = item.querySelector('.file-status');
+                
+                // Create a container for buttons
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'button-container';
+                buttonContainer.style.display = 'flex';
+                buttonContainer.style.justifyContent = 'flex-end';
+                buttonContainer.style.marginTop = '10px';
+                buttonContainer.style.gap = '10px';
+                
+                // Add buttons to the container
+                buttonContainer.appendChild(downloadButton);
 
-                statusElement.textContent = 'Converted successfully';
+                // Add retry button
+                const retryButton = document.createElement('button');
+                retryButton.className = 'btn';
+                retryButton.innerHTML = `<span style="margin-right: 5px;">🔄</span> Retry`;
+                retryButton.style.fontSize = '12px';
+                retryButton.style.padding = '8px 14px';
+                retryButton.style.backgroundColor = '#6c757d';
+                
+                retryButton.addEventListener('click', () => {
+                    // Remove this item from the file list
+                    item.remove();
+                    
+                    // Process the file again
+                    processFile(file);
+                });
+                
+                buttonContainer.appendChild(retryButton);
+                statusContainer.appendChild(buttonContainer);
+                
+                // Show success message with file size reduction info
+                statusElement.textContent = `Converted (${sizeReduction}% smaller)`;
                 statusElement.classList.add('success');
+                
+                // Add detailed statistics to the file item
+                const statsElement = document.createElement('div');
+                statsElement.className = 'file-stats';
+                statsElement.innerHTML = `
+                    <div>Original: ${formatFileSize(originalSize)} → New: ${formatFileSize(newSize)}</div>
+                `;
+                statusContainer.appendChild(statsElement);
+                
+                // Update the thumbnail to show the converted image
+                const thumbnailImg = item.querySelector('.thumbnail-img');
+                const thumbnailContainer = item.querySelector('.file-thumbnail');
+                
+                // Only replace thumbnail if it exists
+                if (thumbnailImg) {
+                    // Create a split display to show before/after
+                    thumbnailContainer.innerHTML = '';
+                    thumbnailContainer.classList.add('split-thumbnail');
+                    
+                    // Create a container for the comparison view
+                    const comparisonDiv = document.createElement('div');
+                    comparisonDiv.className = 'thumbnail-comparison';
+                    
+                    // Create URLs for the original and converted images
+                    const originalThumbnailUrl = URL.createObjectURL(file);
+                    const convertedThumbnailUrl = URL.createObjectURL(convertedBlob);
+                    
+                    // Add before/after thumbnails
+                    comparisonDiv.innerHTML = `
+                        <div class="thumbnail-half">
+                            <img src="${originalThumbnailUrl}" alt="Original" class="thumbnail-img">
+                            <div style="position: absolute; top: 2px; left: 2px; font-size: 8px; background-color: rgba(0,0,0,0.5); color: white; padding: 2px 4px; border-radius: 2px;">BEFORE</div>
+                        </div>
+                        <div class="thumbnail-divider"></div>
+                        <div class="thumbnail-half">
+                            <img src="${convertedThumbnailUrl}" alt="Converted" class="thumbnail-img">
+                            <div style="position: absolute; top: 2px; right: 2px; font-size: 8px; background-color: rgba(0,0,0,0.5); color: white; padding: 2px 4px; border-radius: 2px;">AFTER</div>
+                        </div>
+                    `;
+                    
+                    thumbnailContainer.appendChild(comparisonDiv);
+                    
+                    // Add a small indicator showing the format change
+                    const formatBadge = document.createElement('div');
+                    formatBadge.className = 'format-badge';
+                    formatBadge.textContent = file.type.split('/')[1].toUpperCase() + ' → ' + outputFormat.toUpperCase();
+                    formatBadge.style.fontSize = '10px';
+                    formatBadge.style.fontWeight = 'bold';
+                    thumbnailContainer.appendChild(formatBadge);
+                    
+                    // Clean up URLs
+                    setTimeout(() => {
+                        URL.revokeObjectURL(originalThumbnailUrl);
+                        URL.revokeObjectURL(convertedThumbnailUrl);
+                    }, 5000);
+                }
+                
             } catch (error) {
                 console.error('Error converting file:', error);
+                
+                // Complete progress bar even in case of error
+                updateProgress(progressBar, progressText, 100);
+                
+                // Show error message
                 statusElement.textContent = `Error: ${error.message || 'Failed to convert file'}`;
                 statusElement.classList.add('error');
+                
+                // Create a container for buttons
+                const statusContainer = item.querySelector('.file-status');
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'button-container';
+                buttonContainer.style.display = 'flex';
+                buttonContainer.style.justifyContent = 'flex-end';
+                buttonContainer.style.marginTop = '10px';
+                buttonContainer.style.gap = '10px';
+                
+                // Add retry button
+                const retryButton = document.createElement('button');
+                retryButton.className = 'btn';
+                retryButton.innerHTML = `<span style="margin-right: 5px;">🔄</span> Retry`;
+                retryButton.style.fontSize = '12px';
+                retryButton.style.padding = '8px 14px';
+                retryButton.style.backgroundColor = '#6c757d';
+                
+                retryButton.addEventListener('click', () => {
+                    // Remove this item from the file list
+                    item.remove();
+                    
+                    // Process the file again
+                    processFile(file);
+                });
+                
+                buttonContainer.appendChild(retryButton);
+                statusContainer.appendChild(buttonContainer);
+                
+                // Show processing time even for errors
+                const endTime = performance.now();
+                const processingTime = ((endTime - startTime) / 1000).toFixed(2);
+                processingTimeElement.textContent = `Processing time: ${processingTime}s`;
+                processingTimeElement.style.display = 'block';
             }
+        }
+
+        function updateProgress(progressBar, progressText, percent) {
+            if (progressBar && progressText) {
+                progressBar.style.width = `${percent}%`;
+                progressText.textContent = `${Math.round(percent)}%`;
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes < 1024) {
+                return bytes + ' B';
+            } else if (bytes < 1024 * 1024) {
+                return (bytes / 1024).toFixed(2) + ' KB';
+            } else {
+                return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+            }
+        }
+
+        function createFileListItem(file) {
+            const item = document.createElement('div');
+            item.className = 'file-item';
+            
+            // Format file size nicely
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            
+            // Create a thumbnail URL for the file
+            const thumbnailUrl = URL.createObjectURL(file);
+            
+            item.innerHTML = `
+                <div class="file-thumbnail">
+                    <img src="${thumbnailUrl}" alt="${file.name}" class="thumbnail-img">
+                </div>
+                <div class="file-info">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">${fileSizeMB} MB</div>
+                </div>
+                <div class="file-status">
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 0%;"></div>
+                        <span class="progress-text">0%</span>
+                    </div>
+                    <span class="status">Waiting...</span>
+                    <span class="processing-time" style="display: none;"></span>
+                </div>
+            `;
+            fileList.appendChild(item);
+            
+            // Clean up the URL when no longer needed
+            setTimeout(() => URL.revokeObjectURL(thumbnailUrl), 5000);
+            
+            return item;
         }
 
         function getMimeType(format) {
@@ -1311,6 +1653,88 @@
                 'avif': 'image/avif'
             };
             return mimeTypes[format] || 'image/webp';
+        }
+
+        // Toggle size optimization options
+        sizeOptimizationToggle.addEventListener('change', function() {
+            sizeOptimizationOptions.style.display = this.checked ? 'block' : 'none';
+            
+            // Disable quality slider when size optimization is enabled
+            qualitySlider.disabled = this.checked;
+            if (this.checked) {
+                qualitySlider.classList.add('disabled');
+            } else {
+                qualitySlider.classList.remove('disabled');
+            }
+        });
+
+        // Add CSS for disabled slider
+        const style = document.createElement('style');
+        style.textContent = `
+            input[type="range"].disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Adaptive quality adjustment to meet target file size
+        async function findOptimalQuality(file, targetSizeKB, mimeType, canvas) {
+            // Convert target size from KB to bytes
+            const targetSizeBytes = targetSizeKB * 1024;
+            
+            // Initial quality range
+            let minQuality = 0.01;
+            let maxQuality = 1.0;
+            let currentQuality = 0.7; // Start with a middle value
+            let bestQuality = null;
+            let bestSize = null;
+            let bestBlob = null;
+            
+            // Binary search for optimal quality
+            for (let iteration = 0; iteration < 6; iteration++) { // Limit iterations for performance
+                // Try current quality
+                const blob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, mimeType, currentQuality);
+                });
+                
+                if (!blob) {
+                    throw new Error(`Browser doesn't support conversion to this format`);
+                }
+                
+                const blobSize = blob.size;
+                
+                // Check if this is closer to target than our previous best
+                if (bestSize === null || Math.abs(blobSize - targetSizeBytes) < Math.abs(bestSize - targetSizeBytes)) {
+                    bestQuality = currentQuality;
+                    bestSize = blobSize;
+                    bestBlob = blob;
+                }
+                
+                // Adjust quality based on current size
+                if (blobSize > targetSizeBytes) {
+                    // Too big, reduce quality
+                    maxQuality = currentQuality;
+                } else {
+                    // Too small, increase quality
+                    minQuality = currentQuality;
+                }
+                
+                // Set new quality for next iteration
+                currentQuality = (minQuality + maxQuality) / 2;
+                
+                // If we're close enough to target size, break early
+                if (Math.abs(blobSize - targetSizeBytes) / targetSizeBytes < 0.05) { // Within 5% of target
+                    break;
+                }
+            }
+            
+            // Display the quality we ended up with
+            const displayQuality = Math.round(bestQuality * 100);
+            qualityValue.textContent = displayQuality;
+            qualitySlider.value = displayQuality;
+            
+            return { blob: bestBlob, quality: bestQuality };
         }
     </script>
 </body>
