@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PNG to WebP Converter</title>
+    <title>Multi-Format Image Converter</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/browser-image-compression/2.0.1/browser-image-compression.min.js"></script>
     <style>
@@ -90,18 +90,76 @@
             font-weight: bold;
             margin-top: 5px;
         }
+        .format-selection {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .format-row {
+            display: flex;
+            align-items: center;
+        }
+        .format-row label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .format-options {
+            margin-top: 15px;
+        }
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .checkbox-option input {
+            margin-right: 8px;
+        }
+        .quality-note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>PNG to WebP Converter</h1>
+        <h1>Multi-Format Image Converter</h1>
+        <div class="format-selection">
+            <div class="format-row">
+                <label for="outputFormat">Convert to:</label>
+                <select id="outputFormat">
+                    <option value="webp">WebP</option>
+                    <option value="jpeg">JPEG</option>
+                    <option value="png">PNG</option>
+                    <option value="gif">GIF</option>
+                    <option value="avif">AVIF</option>
+                </select>
+            </div>
+            
+            <div class="format-options">
+                <div class="checkbox-option">
+                    <input type="checkbox" id="losslessOption" />
+                    <label for="losslessOption">Lossless conversion</label>
+                </div>
+            </div>
+        </div>
+        
         <div class="quality-control">
-            <label for="qualitySlider">WebP Quality: <span id="qualityValue">90</span>%</label>
+            <label for="qualitySlider">Quality: <span id="qualityValue">90</span>%</label>
             <input type="range" id="qualitySlider" min="0" max="100" value="90">
+            <div class="quality-note">Note: Quality setting applies to lossy formats (WebP, JPEG, AVIF)</div>
         </div>
         <div class="drop-zone" id="dropZone">
-            <p>Drag and drop PNG files here or</p>
-            <input type="file" id="fileInput" accept=".png" multiple>
+            <p>Drag and drop image files here or</p>
+            <input type="file" id="fileInput" accept="image/*" multiple>
             <button class="btn" onclick="document.getElementById('fileInput').click()">Select Files</button>
         </div>
         <div id="fileList"></div>
@@ -131,7 +189,7 @@
             const downloadUrl = URL.createObjectURL(zipBlob);
             const a = document.createElement('a');
             a.href = downloadUrl;
-            a.download = "converted_webp_files.zip";
+            a.download = "converted_images.zip";
             a.click();
             URL.revokeObjectURL(downloadUrl);
 
@@ -162,10 +220,29 @@
         // Handle quality slider
         const qualitySlider = document.getElementById('qualitySlider');
         const qualityValue = document.getElementById('qualityValue');
+        const qualityControl = document.querySelector('.quality-control');
+        const outputFormat = document.getElementById('outputFormat');
+        const losslessOption = document.getElementById('losslessOption');
         
         qualitySlider.addEventListener('input', function(e) {
             qualityValue.textContent = e.target.value;
         });
+        
+        // Check if format supports quality adjustment and toggle quality control visibility
+        function updateQualityControlVisibility() {
+            const format = outputFormat.value;
+            const isLossless = losslessOption.checked;
+            
+            const requiresQuality = ['webp', 'jpeg', 'avif'].includes(format) && !isLossless;
+            qualityControl.style.display = requiresQuality ? 'block' : 'none';
+        }
+        
+        // Update visibility when format or lossless option changes
+        outputFormat.addEventListener('change', updateQualityControlVisibility);
+        losslessOption.addEventListener('change', updateQualityControlVisibility);
+        
+        // Initialize visibility
+        updateQualityControlVisibility();
 
         function preventDefaults (e) {
             e.preventDefault();
@@ -203,9 +280,10 @@
         }
 
         async function processFile(file) {
-            if (!file.type.includes('png')) {
+            // Check if file is a supported image
+            if (!file.type.startsWith('image/')) {
                 const item = createFileListItem(file);
-                item.querySelector('.status').textContent = 'Error: Not a PNG file';
+                item.querySelector('.status').textContent = 'Error: Not a supported image file';
                 item.querySelector('.status').classList.add('error');
                 return;
             }
@@ -214,7 +292,11 @@
             const statusElement = item.querySelector('.status');
 
             try {
-                // Convert PNG to WebP
+                // Get selected output format
+                const outputFormat = document.getElementById('outputFormat').value;
+                const mimeType = getMimeType(outputFormat);
+                
+                // Create image from file
                 const image = await createImageBitmap(file);
                 const canvas = document.createElement('canvas');
                 canvas.width = image.width;
@@ -223,15 +305,31 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(image, 0, 0);
 
-                const webpBlob = await new Promise(resolve => {
-                    const quality = document.getElementById('qualitySlider').value / 100;
-                    canvas.toBlob(resolve, 'image/webp', quality);
+                // Convert image to selected format
+                let quality = document.getElementById('qualitySlider').value / 100;
+                const isLossless = document.getElementById('losslessOption').checked;
+                
+                // For lossless formats or when lossless option is checked, don't use quality
+                if (isLossless || outputFormat === 'png' || outputFormat === 'gif') {
+                    quality = undefined; // Use browser default (typically lossless for png/gif)
+                }
+                
+                const convertedBlob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, mimeType, quality);
                 });
+                
+                // Handle the case where the browser doesn't support the requested format
+                if (!convertedBlob) {
+                    throw new Error(`Browser does not support conversion to ${outputFormat}`);
+                }
 
+                // Get file extension from original file
+                const originalExt = file.name.split('.').pop();
+                
                 // Store the converted file
                 convertedFiles.push({
-                    name: file.name.replace('.png', '.webp'),
-                    blob: webpBlob
+                    name: file.name.replace(new RegExp('\\.' + originalExt + '$'), '.' + outputFormat),
+                    blob: convertedBlob
                 });
 
                 // Show download all button if there are files
@@ -241,9 +339,20 @@
                 statusElement.classList.add('success');
             } catch (error) {
                 console.error('Error converting file:', error);
-                statusElement.textContent = 'Error converting file';
+                statusElement.textContent = `Error: ${error.message || 'Failed to convert file'}`;
                 statusElement.classList.add('error');
             }
+        }
+
+        function getMimeType(format) {
+            const mimeTypes = {
+                'webp': 'image/webp',
+                'jpeg': 'image/jpeg',
+                'png': 'image/png',
+                'gif': 'image/gif',
+                'avif': 'image/avif'
+            };
+            return mimeTypes[format] || 'image/webp';
         }
     </script>
 </body>
