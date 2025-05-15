@@ -316,6 +316,122 @@
             cursor: pointer;
         }
 
+        /* Image Preview Styles */
+        .preview-container {
+            margin: 25px 0;
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--shadow-color);
+            overflow: hidden;
+        }
+        
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .preview-title {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .preview-toggle {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .preview-toggle:hover {
+            text-decoration: underline;
+        }
+        
+        .preview-content {
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .preview-wrapper {
+            flex: 1;
+            min-width: 200px;
+            max-width: 100%;
+        }
+        
+        .preview-label {
+            font-weight: 500;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .preview-image {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px var(--shadow-color);
+        }
+        
+        .image-info {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--secondary-text);
+        }
+        
+        .image-info > div {
+            margin-bottom: 4px;
+        }
+        
+        .comparison-view {
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px var(--shadow-color);
+        }
+        
+        .comparison-original,
+        .comparison-converted {
+            width: 100%;
+            position: relative;
+        }
+        
+        .comparison-separator {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--primary-color);
+            cursor: ew-resize;
+            z-index: 2;
+        }
+        
+        .comparison-label {
+            position: absolute;
+            top: 10px;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            z-index: 1;
+        }
+        
+        .comparison-label.original {
+            left: 10px;
+        }
+        
+        .comparison-label.converted {
+            right: 10px;
+        }
+        
         /* Responsive styles */
         @media (max-width: 768px) {
             body {
@@ -338,6 +454,14 @@
             .btn {
                 padding: 10px 20px;
                 font-size: 14px;
+            }
+            
+            .preview-content {
+                flex-direction: column;
+            }
+            
+            .preview-wrapper {
+                max-width: 100%;
             }
         }
     </style>
@@ -388,6 +512,34 @@
             </button>
         </div>
 
+        <div id="previewSection" style="display: none;" class="preview-container">
+            <div class="preview-header">
+                <div class="preview-title">Image Preview</div>
+                <button class="preview-toggle" id="toggleComparison">
+                    <span id="comparisonToggleText">Show Comparison View</span>
+                </button>
+            </div>
+            <div class="preview-content" id="previewContent">
+                <div class="preview-wrapper">
+                    <span class="preview-label">Original Image</span>
+                    <img id="originalPreview" class="preview-image" alt="Original image preview">
+                    <div class="image-info" id="originalInfo"></div>
+                </div>
+                <div class="preview-wrapper">
+                    <span class="preview-label">Converted Image</span>
+                    <img id="convertedPreview" class="preview-image" alt="Converted image preview">
+                    <div class="image-info" id="convertedInfo"></div>
+                </div>
+            </div>
+            <div id="comparisonView" style="display: none;" class="preview-content">
+                <div class="comparison-view" id="comparisonContainer">
+                    <div class="comparison-label original">Original</div>
+                    <div class="comparison-label converted">Converted</div>
+                    <div class="comparison-separator" id="comparisonSeparator"></div>
+                </div>
+            </div>
+        </div>
+
         <div id="fileList"></div>
         
         <button id="downloadAll" class="btn" style="display: none; margin-top: 20px;">
@@ -402,7 +554,21 @@
         const fileList = document.getElementById('fileList');
         const downloadAllBtn = document.getElementById('downloadAll');
         const themeToggle = document.getElementById('themeToggle');
+        const previewSection = document.getElementById('previewSection');
+        const originalPreview = document.getElementById('originalPreview');
+        const convertedPreview = document.getElementById('convertedPreview');
+        const originalInfo = document.getElementById('originalInfo');
+        const convertedInfo = document.getElementById('convertedInfo');
+        const toggleComparison = document.getElementById('toggleComparison');
+        const comparisonToggleText = document.getElementById('comparisonToggleText');
+        const comparisonView = document.getElementById('comparisonView');
+        const previewContent = document.getElementById('previewContent');
+        const comparisonContainer = document.getElementById('comparisonContainer');
+        const comparisonSeparator = document.getElementById('comparisonSeparator');
+        
         let convertedFiles = [];
+        let currentFile = null;
+        let currentConvertedBlob = null;
         
         // Theme management
         function initTheme() {
@@ -436,6 +602,127 @@
         
         // Theme toggle event listener
         themeToggle.addEventListener('click', toggleTheme);
+        
+        // Preview mode toggle
+        toggleComparison.addEventListener('click', function() {
+            const isComparisonVisible = comparisonView.style.display !== 'none';
+            
+            if (isComparisonVisible) {
+                // Switch to side by side view
+                comparisonView.style.display = 'none';
+                previewContent.style.display = 'flex';
+                comparisonToggleText.textContent = 'Show Comparison View';
+            } else {
+                // Switch to comparison view
+                setupComparisonView();
+                comparisonView.style.display = 'block';
+                previewContent.style.display = 'none';
+                comparisonToggleText.textContent = 'Show Side by Side View';
+            }
+        });
+        
+        // Setup comparison slider
+        function setupComparisonView() {
+            if (!currentFile || !currentConvertedBlob) return;
+            
+            comparisonContainer.innerHTML = `
+                <div class="comparison-label original">Original</div>
+                <div class="comparison-label converted">Converted</div>
+                <div class="comparison-separator" id="comparisonSeparator"></div>
+                <div style="position: absolute; width: 100%; height: 100%; overflow: hidden;">
+                    <img src="${URL.createObjectURL(currentFile)}" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                <div style="position: absolute; width: 50%; height: 100%; overflow: hidden; right: 0;">
+                    <img src="${URL.createObjectURL(currentConvertedBlob)}" style="width: 200%; height: 100%; object-fit: contain; object-position: right;">
+                </div>
+            `;
+            
+            const separator = comparisonContainer.querySelector('.comparison-separator');
+            separator.style.left = '50%';
+            
+            // Make separator draggable
+            separator.addEventListener('mousedown', initDrag);
+            separator.addEventListener('touchstart', initDrag);
+            
+            function initDrag(e) {
+                e.preventDefault();
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('touchmove', dragMove);
+                document.addEventListener('mouseup', dragEnd);
+                document.addEventListener('touchend', dragEnd);
+            }
+            
+            function dragMove(e) {
+                const containerRect = comparisonContainer.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - containerRect.left;
+                const percent = Math.max(0, Math.min(100, (x / containerRect.width) * 100));
+                
+                separator.style.left = `${percent}%`;
+                const convertedDiv = comparisonContainer.querySelector('div:nth-child(5)');
+                convertedDiv.style.width = `${100 - percent}%`;
+            }
+            
+            function dragEnd() {
+                document.removeEventListener('mousemove', dragMove);
+                document.removeEventListener('touchmove', dragMove);
+                document.removeEventListener('mouseup', dragEnd);
+                document.removeEventListener('touchend', dragEnd);
+            }
+        }
+        
+        // Display image previews
+        function displayImagePreviews(file, convertedBlob) {
+            // Store current file and blob for comparison view
+            currentFile = file;
+            currentConvertedBlob = convertedBlob;
+            
+            // Create URLs for the images
+            const originalUrl = URL.createObjectURL(file);
+            const convertedUrl = URL.createObjectURL(convertedBlob);
+            
+            // Set the image sources
+            originalPreview.src = originalUrl;
+            convertedPreview.src = convertedUrl;
+            
+            // Show the preview section
+            previewSection.style.display = 'block';
+            
+            // Display original image info
+            getImageDimensions(originalUrl).then(dims => {
+                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                originalInfo.innerHTML = `
+                    <div>Dimensions: ${dims.width} × ${dims.height}px</div>
+                    <div>File Size: ${fileSizeMB} MB</div>
+                    <div>Format: ${file.type.split('/')[1].toUpperCase()}</div>
+                `;
+            });
+            
+            // Display converted image info
+            getImageDimensions(convertedUrl).then(dims => {
+                const fileSizeMB = (convertedBlob.size / (1024 * 1024)).toFixed(2);
+                const compression = ((1 - (convertedBlob.size / file.size)) * 100).toFixed(1);
+                const format = getMimeType(document.getElementById('outputFormat').value);
+                
+                convertedInfo.innerHTML = `
+                    <div>Dimensions: ${dims.width} × ${dims.height}px</div>
+                    <div>File Size: ${fileSizeMB} MB</div>
+                    <div>Format: ${format.split('/')[1].toUpperCase()}</div>
+                    <div>Compression: ${compression}% smaller</div>
+                `;
+            });
+        }
+        
+        // Get image dimensions
+        function getImageDimensions(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = function() {
+                    resolve({ width: this.width, height: this.height });
+                };
+                img.onerror = reject;
+                img.src = url;
+            });
+        }
 
         // Handle download all button
         downloadAllBtn.addEventListener('click', async () => {
@@ -549,7 +836,16 @@
 
         function handleFiles(e) {
             const files = [...e.target.files];
-            files.forEach(processFile);
+            
+            // Clear existing file list when new batch is selected
+            if (files.length > 0) {
+                fileList.innerHTML = '';
+            }
+            
+            // Process all files
+            files.forEach((file, index) => {
+                processFile(file);
+            });
         }
 
         function createFileListItem(file) {
@@ -618,13 +914,37 @@
                 const originalExt = file.name.split('.').pop();
                 
                 // Store the converted file
+                const convertedFileName = file.name.replace(new RegExp('\\.' + originalExt + '$'), '.' + outputFormat);
                 convertedFiles.push({
-                    name: file.name.replace(new RegExp('\\.' + originalExt + '$'), '.' + outputFormat),
+                    name: convertedFileName,
                     blob: convertedBlob
                 });
 
                 // Show download all button if there are files
                 downloadAllBtn.style.display = 'block';
+                
+                // Display image previews
+                displayImagePreviews(file, convertedBlob);
+
+                // Add download button to file item
+                const downloadButton = document.createElement('button');
+                downloadButton.className = 'btn';
+                downloadButton.innerHTML = `<span style="margin-right: 5px;">⬇️</span> Download`;
+                downloadButton.style.fontSize = '12px';
+                downloadButton.style.padding = '6px 12px';
+                downloadButton.style.marginLeft = '10px';
+                
+                downloadButton.addEventListener('click', () => {
+                    const url = URL.createObjectURL(convertedBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = convertedFileName;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+                
+                const statusContainer = item.querySelector('.status').parentNode;
+                statusContainer.appendChild(downloadButton);
 
                 statusElement.textContent = 'Converted successfully';
                 statusElement.classList.add('success');
