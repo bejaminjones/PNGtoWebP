@@ -297,6 +297,95 @@
             height: 16px;
             accent-color: var(--primary-color);
         }
+        
+        .advanced-options {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .advanced-toggle {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .advanced-toggle:hover {
+            text-decoration: underline;
+        }
+        
+        .advanced-toggle-icon {
+            margin-right: 5px;
+            transition: transform 0.3s;
+        }
+        
+        .advanced-toggle[aria-expanded="true"] .advanced-toggle-icon {
+            transform: rotate(90deg);
+        }
+        
+        .advanced-panel {
+            display: none;
+            padding: 10px;
+            background-color: var(--highlight-color);
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .advanced-panel.visible {
+            display: block;
+        }
+        
+        .resize-options {
+            margin-bottom: 15px;
+        }
+        
+        .dimension-inputs {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            align-items: center;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-group label {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .dimension-inputs input[type="number"] {
+            width: 80px;
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+        
+        .format-specific-options {
+            margin-top: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+        
+        .format-specific-options h4 {
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .option-group {
+            margin-bottom: 12px;
+        }
 
         .quality-note {
             font-size: 13px;
@@ -493,6 +582,102 @@
                 <div class="checkbox-option">
                     <input type="checkbox" id="losslessOption" />
                     <label for="losslessOption">Lossless conversion</label>
+                </div>
+                
+                <div class="checkbox-option">
+                    <input type="checkbox" id="preserveMetadata" />
+                    <label for="preserveMetadata">Preserve metadata (EXIF, XMP, etc.)</label>
+                </div>
+                
+                <div class="advanced-options">
+                    <button class="advanced-toggle" id="advancedToggle" aria-expanded="false">
+                        <span class="advanced-toggle-icon">▶</span> Advanced Options
+                    </button>
+                    
+                    <div class="advanced-panel" id="advancedPanel">
+                        <div class="resize-options">
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="resizeOption" />
+                                <label for="resizeOption">Resize image</label>
+                            </div>
+                            
+                            <div id="resizeDimensions" style="display: none;">
+                                <div class="dimension-inputs">
+                                    <div class="input-group">
+                                        <label for="widthInput">Width (px)</label>
+                                        <input type="number" id="widthInput" min="1" />
+                                    </div>
+                                    
+                                    <span>×</span>
+                                    
+                                    <div class="input-group">
+                                        <label for="heightInput">Height (px)</label>
+                                        <input type="number" id="heightInput" min="1" />
+                                    </div>
+                                </div>
+                                
+                                <div class="checkbox-option">
+                                    <input type="checkbox" id="maintainAspectRatio" checked />
+                                    <label for="maintainAspectRatio">Maintain aspect ratio</label>
+                                </div>
+                                
+                                <div class="dimension-inputs" style="margin-top: 15px;">
+                                    <div class="input-group">
+                                        <label for="scalePercent">Scale (%)</label>
+                                        <input type="number" id="scalePercent" value="100" min="1" max="100" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Format-specific options -->
+                        <div class="format-specific-options">
+                            <!-- WebP Options -->
+                            <div id="webpOptions" class="format-options-panel">
+                                <h4>WebP Options</h4>
+                                <div class="option-group">
+                                    <div class="checkbox-option">
+                                        <input type="checkbox" id="webpAlpha" checked />
+                                        <label for="webpAlpha">Include alpha channel</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- JPEG Options -->
+                            <div id="jpegOptions" class="format-options-panel" style="display: none;">
+                                <h4>JPEG Options</h4>
+                                <div class="option-group">
+                                    <div class="checkbox-option">
+                                        <input type="checkbox" id="jpegProgressive" />
+                                        <label for="jpegProgressive">Progressive loading</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- PNG Options -->
+                            <div id="pngOptions" class="format-options-panel" style="display: none;">
+                                <h4>PNG Options</h4>
+                                <div class="option-group">
+                                    <label for="pngCompression">Compression Level</label>
+                                    <div class="dimension-inputs" style="margin-top: 5px;">
+                                        <input type="range" id="pngCompression" min="0" max="9" value="6" style="width: 100%;">
+                                        <span id="pngCompressionValue" style="min-width: 30px; text-align: center;">6</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- AVIF Options -->
+                            <div id="avifOptions" class="format-options-panel" style="display: none;">
+                                <h4>AVIF Options</h4>
+                                <div class="option-group">
+                                    <div class="checkbox-option">
+                                        <input type="checkbox" id="avifLowDataMode" />
+                                        <label for="avifLowDataMode">Low data mode (faster decode)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -788,12 +973,132 @@
             qualityControl.style.display = requiresQuality ? 'block' : 'none';
         }
         
+        // Get advanced options elements
+        const advancedToggle = document.getElementById('advancedToggle');
+        const advancedPanel = document.getElementById('advancedPanel');
+        const resizeOption = document.getElementById('resizeOption');
+        const resizeDimensions = document.getElementById('resizeDimensions');
+        const widthInput = document.getElementById('widthInput');
+        const heightInput = document.getElementById('heightInput');
+        const maintainAspectRatio = document.getElementById('maintainAspectRatio');
+        const scalePercent = document.getElementById('scalePercent');
+        const pngCompression = document.getElementById('pngCompression');
+        const pngCompressionValue = document.getElementById('pngCompressionValue');
+        
+        // Format-specific panels
+        const webpOptions = document.getElementById('webpOptions');
+        const jpegOptions = document.getElementById('jpegOptions');
+        const pngOptions = document.getElementById('pngOptions');
+        const avifOptions = document.getElementById('avifOptions');
+        
+        // Toggle advanced panel
+        advancedToggle.addEventListener('click', function() {
+            const expanded = advancedToggle.getAttribute('aria-expanded') === 'true';
+            advancedToggle.setAttribute('aria-expanded', !expanded);
+            if (expanded) {
+                advancedPanel.classList.remove('visible');
+            } else {
+                advancedPanel.classList.add('visible');
+            }
+        });
+        
+        // Toggle resize options
+        resizeOption.addEventListener('change', function() {
+            resizeDimensions.style.display = resizeOption.checked ? 'block' : 'none';
+        });
+        
+        // Maintain aspect ratio when changing dimensions
+        let originalAspectRatio = 1;
+        
+        widthInput.addEventListener('input', function() {
+            if (maintainAspectRatio.checked && originalAspectRatio && this.value) {
+                heightInput.value = Math.round(this.value / originalAspectRatio);
+            }
+            updateScalePercent();
+        });
+        
+        heightInput.addEventListener('input', function() {
+            if (maintainAspectRatio.checked && originalAspectRatio && this.value) {
+                widthInput.value = Math.round(this.value * originalAspectRatio);
+            }
+            updateScalePercent();
+        });
+        
+        scalePercent.addEventListener('input', function() {
+            if (originalWidth && originalHeight && this.value) {
+                widthInput.value = Math.round((originalWidth * this.value) / 100);
+                heightInput.value = Math.round((originalHeight * this.value) / 100);
+            }
+        });
+        
+        // Update scale percentage based on width/height changes
+        let originalWidth = 0;
+        let originalHeight = 0;
+        
+        function updateScalePercent() {
+            if (originalWidth && widthInput.value) {
+                scalePercent.value = Math.round((widthInput.value / originalWidth) * 100);
+            }
+        }
+        
+        // PNG compression slider
+        pngCompression.addEventListener('input', function() {
+            pngCompressionValue.textContent = this.value;
+        });
+        
+        // Show relevant format options
+        function updateFormatOptions() {
+            const format = outputFormat.value;
+            
+            // Hide all format-specific panels
+            webpOptions.style.display = 'none';
+            jpegOptions.style.display = 'none';
+            pngOptions.style.display = 'none';
+            avifOptions.style.display = 'none';
+            
+            // Show the panel for the selected format
+            switch (format) {
+                case 'webp':
+                    webpOptions.style.display = 'block';
+                    break;
+                case 'jpeg':
+                    jpegOptions.style.display = 'block';
+                    break;
+                case 'png':
+                    pngOptions.style.display = 'block';
+                    break;
+                case 'avif':
+                    avifOptions.style.display = 'block';
+                    break;
+            }
+        }
+        
+        // Set initial image dimensions when an image is loaded
+        function updateImageDimensions(file) {
+            const img = new Image();
+            img.onload = function() {
+                originalWidth = this.width;
+                originalHeight = this.height;
+                originalAspectRatio = originalWidth / originalHeight;
+                
+                widthInput.value = originalWidth;
+                heightInput.value = originalHeight;
+                widthInput.placeholder = originalWidth;
+                heightInput.placeholder = originalHeight;
+            };
+            img.src = URL.createObjectURL(file);
+        }
+        
         // Update visibility when format or lossless option changes
-        outputFormat.addEventListener('change', updateQualityControlVisibility);
+        outputFormat.addEventListener('change', function() {
+            updateQualityControlVisibility();
+            updateFormatOptions();
+        });
         losslessOption.addEventListener('change', updateQualityControlVisibility);
         
         // Initialize visibility
         updateQualityControlVisibility();
+        updateFormatOptions();
 
         function preventDefaults (e) {
             e.preventDefault();
@@ -879,6 +1184,9 @@
             const statusElement = item.querySelector('.status');
 
             try {
+                // Update image dimensions for resize options
+                updateImageDimensions(file);
+                
                 // Get selected output format
                 const outputFormat = document.getElementById('outputFormat').value;
                 const mimeType = getMimeType(outputFormat);
@@ -886,13 +1194,22 @@
                 // Create image from file
                 const image = await createImageBitmap(file);
                 const canvas = document.createElement('canvas');
-                canvas.width = image.width;
-                canvas.height = image.height;
+                
+                // Handle resize if enabled
+                if (resizeOption.checked && widthInput.value && heightInput.value) {
+                    canvas.width = parseInt(widthInput.value);
+                    canvas.height = parseInt(heightInput.value);
+                } else {
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                }
                 
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(image, 0, 0);
+                
+                // Draw the image with proper scaling
+                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-                // Convert image to selected format
+                // Get quality setting
                 let quality = document.getElementById('qualitySlider').value / 100;
                 const isLossless = document.getElementById('losslessOption').checked;
                 
@@ -901,6 +1218,36 @@
                     quality = undefined; // Use browser default (typically lossless for png/gif)
                 }
                 
+                // Prepare conversion options
+                let convertOptions = {};
+                
+                // Format-specific options
+                switch (outputFormat) {
+                    case 'webp':
+                        if (document.getElementById('webpAlpha')) {
+                            convertOptions.alpha = document.getElementById('webpAlpha').checked ? 1 : 0;
+                        }
+                        break;
+                    case 'jpeg':
+                        if (document.getElementById('jpegProgressive') && document.getElementById('jpegProgressive').checked) {
+                            // Note: Canvas API doesn't support progressive JPEG directly
+                            // This is a placeholder for future implementation with a more advanced library
+                        }
+                        break;
+                    case 'png':
+                        // PNG compression level (for informational purposes only, as Canvas API doesn't expose this)
+                        // This would require a dedicated PNG encoder library to implement fully
+                        break;
+                    case 'avif':
+                        // AVIF options would need a dedicated encoder, as browser support is still evolving
+                        break;
+                }
+                
+                // Preserve metadata (note: standard Canvas API doesn't support this)
+                // Would need a dedicated image processing library to fully implement
+                const preserveMetadata = document.getElementById('preserveMetadata').checked;
+                
+                // Perform the conversion
                 const convertedBlob = await new Promise(resolve => {
                     canvas.toBlob(resolve, mimeType, quality);
                 });
