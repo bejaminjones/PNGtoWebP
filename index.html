@@ -7,132 +7,353 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/browser-image-compression/2.0.1/browser-image-compression.min.js"></script>
     <style>
+        :root {
+            /* Light mode colors */
+            --bg-color: #f5f5f5;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --drop-zone-bg: #fafafa;
+            --primary-color: #4361ee;
+            --primary-hover: #3a56d4;
+            --success-color: #4cc9f0;
+            --error-color: #f72585;
+            --panel-bg: #f8f9fa;
+            --secondary-text: #666666;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --dragover-bg: #edf2ff;
+            --dragover-border: #4361ee;
+            --slider-track: #d1d1d1;
+            --slider-thumb: #4361ee;
+            --input-bg: #ffffff;
+            --highlight-color: rgba(67, 97, 238, 0.1);
+        }
+
+        [data-theme="dark"] {
+            /* Dark mode colors */
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --border-color: #333333;
+            --drop-zone-bg: #2d2d2d;
+            --primary-color: #4cc9f0;
+            --primary-hover: #3db5d9;
+            --success-color: #06d6a0;
+            --error-color: #ef476f;
+            --panel-bg: #252525;
+            --secondary-text: #b0b0b0;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --dragover-bg: #3a3f5a;
+            --dragover-border: #4cc9f0;
+            --slider-track: #555555;
+            --slider-thumb: #4cc9f0;
+            --input-bg: #2d2d2d;
+            --highlight-color: rgba(76, 201, 240, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 30px 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .drop-zone {
-            border: 2px dashed #ccc;
-            border-radius: 4px;
-            padding: 20px;
+
+        h1 {
+            margin-bottom: 20px;
             text-align: center;
-            margin: 20px 0;
-            background-color: #fafafa;
+            color: var(--primary-color);
+            font-weight: 600;
         }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .theme-toggle-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px var(--shadow-color);
+            margin-bottom: 40px;
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            margin: 25px 0;
+            background-color: var(--drop-zone-bg);
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone p {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
         .drop-zone.dragover {
-            border-color: #0066cc;
-            background-color: #f0f7ff;
+            border-color: var(--dragover-border);
+            background-color: var(--dragover-bg);
+            transform: scale(1.01);
         }
+
         #fileInput {
             display: none;
         }
+
         .btn {
-            background-color: #0066cc;
+            background-color: var(--primary-color);
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
+
         .btn:hover {
-            background-color: #0052a3;
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
         .progress {
             margin-top: 20px;
         }
+
         #fileList {
-            margin-top: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: var(--panel-bg);
         }
+
         .file-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
         }
+
+        .file-item:hover {
+            background-color: var(--highlight-color);
+        }
+
         .file-item:last-child {
             border-bottom: none;
         }
+        
+        .file-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .file-size {
+            font-size: 12px;
+            color: var(--secondary-text);
+        }
+
         .status {
             font-size: 14px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 500;
         }
+
         .status.success {
-            color: #00a651;
+            color: var(--success-color);
+            background-color: rgba(76, 201, 240, 0.1);
         }
+
         .status.error {
-            color: #dc3545;
+            color: var(--error-color);
+            background-color: rgba(239, 71, 111, 0.1);
         }
-        .quality-control {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
+
+        .quality-control,
+        .format-selection {
+            margin: 25px 0;
+            padding: 20px;
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--shadow-color);
         }
-        .quality-control label {
+
+        .panel-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .quality-control label,
+        .format-row label {
             display: block;
             margin-bottom: 10px;
+            font-weight: 500;
         }
-        .quality-control input {
+
+        .quality-control input[type="range"] {
             width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: var(--slider-track);
+            border-radius: 4px;
+            outline: none;
         }
+
+        .quality-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background-color: var(--slider-thumb);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .quality-control input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background-color: var(--slider-thumb);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
         .quality-value {
             text-align: center;
             font-weight: bold;
-            margin-top: 5px;
+            margin-top: 10px;
+            font-size: 14px;
         }
-        .format-selection {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-        }
+
         .format-row {
             display: flex;
             align-items: center;
+            margin-bottom: 15px;
         }
+
         .format-row label {
-            margin-right: 10px;
-            font-weight: bold;
+            margin-right: 15px;
+            font-weight: 500;
         }
+
         .format-options {
-            margin-top: 15px;
+            margin-top: 20px;
         }
+
         .checkbox-option {
             display: flex;
             align-items: center;
-            margin: 5px 0;
+            margin: 10px 0;
         }
+
         .checkbox-option input {
-            margin-right: 8px;
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary-color);
         }
+
         .quality-note {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
+            font-size: 13px;
+            color: var(--secondary-text);
+            margin-top: 10px;
+            font-style: italic;
         }
+
         select {
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            background-color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
             font-size: 14px;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .format-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .format-row label {
+                margin-bottom: 10px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="header">
         <h1>Multi-Format Image Converter</h1>
+        <div class="theme-toggle" id="themeToggle">
+            <span class="theme-toggle-icon">☀️</span>
+            <span>Toggle Dark Mode</span>
+        </div>
+    </div>
+
+    <div class="container">
         <div class="format-selection">
+            <div class="panel-title">Conversion Options</div>
             <div class="format-row">
                 <label for="outputFormat">Convert to:</label>
                 <select id="outputFormat">
@@ -153,25 +374,68 @@
         </div>
         
         <div class="quality-control">
+            <div class="panel-title">Quality Settings</div>
             <label for="qualitySlider">Quality: <span id="qualityValue">90</span>%</label>
             <input type="range" id="qualitySlider" min="0" max="100" value="90">
             <div class="quality-note">Note: Quality setting applies to lossy formats (WebP, JPEG, AVIF)</div>
         </div>
+
         <div class="drop-zone" id="dropZone">
             <p>Drag and drop image files here or</p>
             <input type="file" id="fileInput" accept="image/*" multiple>
-            <button class="btn" onclick="document.getElementById('fileInput').click()">Select Files</button>
+            <button class="btn" onclick="document.getElementById('fileInput').click()">
+                <span style="margin-right: 8px;">📁</span> Select Files
+            </button>
         </div>
+
         <div id="fileList"></div>
-        <button id="downloadAll" class="btn" style="display: none; margin-top: 20px;">Download All Files</button>
+        
+        <button id="downloadAll" class="btn" style="display: none; margin-top: 20px;">
+            <span style="margin-right: 8px;">⬇️</span> Download All Files
+        </button>
     </div>
 
     <script>
+        // DOM Elements
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
         const downloadAllBtn = document.getElementById('downloadAll');
+        const themeToggle = document.getElementById('themeToggle');
         let convertedFiles = [];
+        
+        // Theme management
+        function initTheme() {
+            // Check for saved theme preference or use user's system preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                updateThemeIcon('dark');
+            }
+        }
+        
+        function updateThemeIcon(theme) {
+            const iconElement = themeToggle.querySelector('.theme-toggle-icon');
+            iconElement.textContent = theme === 'dark' ? '🌙' : '☀️';
+        }
+        
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+        
+        // Set initial theme
+        initTheme();
+        
+        // Theme toggle event listener
+        themeToggle.addEventListener('click', toggleTheme);
 
         // Handle download all button
         downloadAllBtn.addEventListener('click', async () => {
@@ -251,10 +515,30 @@
 
         function highlight(e) {
             dropZone.classList.add('dragover');
+            
+            // Add animation for visual feedback
+            dropZone.animate([
+                { transform: 'scale(1)', boxShadow: '0 0 0 rgba(67, 97, 238, 0)' },
+                { transform: 'scale(1.02)', boxShadow: '0 0 20px rgba(67, 97, 238, 0.3)' }
+            ], {
+                duration: 300,
+                fill: 'forwards',
+                easing: 'ease-out'
+            });
         }
 
         function unhighlight(e) {
             dropZone.classList.remove('dragover');
+            
+            // Reverse animation
+            dropZone.animate([
+                { transform: 'scale(1.02)', boxShadow: '0 0 20px rgba(67, 97, 238, 0.3)' },
+                { transform: 'scale(1)', boxShadow: '0 0 0 rgba(67, 97, 238, 0)' }
+            ], {
+                duration: 300,
+                fill: 'forwards',
+                easing: 'ease-out'
+            });
         }
 
         function handleDrop(e) {
@@ -271,8 +555,15 @@
         function createFileListItem(file) {
             const item = document.createElement('div');
             item.className = 'file-item';
+            
+            // Format file size nicely
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            
             item.innerHTML = `
-                <span>${file.name}</span>
+                <div class="file-info">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">${fileSizeMB} MB</div>
+                </div>
                 <span class="status">Processing...</span>
             `;
             fileList.appendChild(item);
