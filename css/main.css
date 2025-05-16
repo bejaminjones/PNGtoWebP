@@ -9,12 +9,12 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    max-width: 900px;
     margin: 0 auto;
     padding: 30px 20px;
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: 1.6;
+    max-width: 100%;
 }
 
 h1 {
@@ -29,6 +29,10 @@ h1 {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
 }
 
 .container {
@@ -37,16 +41,52 @@ h1 {
     border-radius: 12px;
     box-shadow: 0 4px 10px var(--shadow-color);
     margin-bottom: 40px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* Responsive styles */
-@media (max-width: 768px) {
+/* Two-column layout for desktop */
+@media (min-width: 1024px) {
+    .container {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 30px;
+    }
+    
+    .controls-column {
+        grid-column: 1;
+    }
+    
+    .content-column {
+        grid-column: 2;
+    }
+    
+    .drop-zone {
+        min-height: 200px;
+    }
+    
+    #downloadAll {
+        margin-top: 20px;
+    }
+}
+
+/* Responsive styles for tablets and mobile */
+@media (max-width: 1023px) {
     body {
         padding: 15px;
     }
 
     .container {
         padding: 20px;
+    }
+    
+    .controls-column, .content-column {
+        width: 100%;
+    }
+    
+    .controls-column > div {
+        margin-bottom: 20px;
     }
 
     .format-row {
@@ -79,5 +119,11 @@ h1 {
         width: 100%;
         align-items: flex-start;
         margin-top: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
     }
 }

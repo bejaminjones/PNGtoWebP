@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="css/components/dropzone.css">
     <link rel="stylesheet" href="css/components/preview.css">
     <link rel="stylesheet" href="css/components/controls.css">
+    <link rel="stylesheet" href="css/components/filelist.css">
 </head>
 <body>
     <div class="header">
@@ -28,160 +29,166 @@
     </div>
 
     <div class="container">
-        <div class="format-selection">
-            <div class="panel-title">Conversion Options</div>
-            <div class="format-row">
-                <label for="outputFormat">Convert to:</label>
-                <select id="outputFormat">
-                    <option value="webp">WebP</option>
-                    <option value="jpeg">JPEG</option>
-                    <option value="png">PNG</option>
-                    <option value="gif">GIF</option>
-                    <option value="avif">AVIF</option>
-                </select>
-            </div>
-            
-            <div class="format-options">
-                <div class="checkbox-option">
-                    <input type="checkbox" id="losslessOption" />
-                    <label for="losslessOption">Lossless conversion</label>
+        <!-- Controls Column (Left) -->
+        <div class="controls-column">
+            <div class="format-selection">
+                <div class="panel-title">Conversion Options</div>
+                <div class="format-row">
+                    <label for="outputFormat">Convert to:</label>
+                    <select id="outputFormat">
+                        <option value="webp">WebP</option>
+                        <option value="jpeg">JPEG</option>
+                        <option value="png">PNG</option>
+                        <option value="gif">GIF</option>
+                        <option value="avif">AVIF</option>
+                    </select>
                 </div>
                 
-                <div class="checkbox-option">
-                    <input type="checkbox" id="preserveMetadata" />
-                    <label for="preserveMetadata">Preserve metadata (EXIF, XMP, etc.)</label>
-                </div>
-                
-                <div class="advanced-options">
-                    <button class="advanced-toggle" id="advancedToggle" aria-expanded="false">
-                        <span class="advanced-toggle-icon">▶</span> Advanced Options
-                    </button>
+                <div class="format-options">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="losslessOption" />
+                        <label for="losslessOption">Lossless conversion</label>
+                    </div>
                     
-                    <div class="advanced-panel" id="advancedPanel">
-                        <div class="resize-options">
-                            <div class="checkbox-option">
-                                <input type="checkbox" id="resizeOption" />
-                                <label for="resizeOption">Resize image</label>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="preserveMetadata" />
+                        <label for="preserveMetadata">Preserve metadata (EXIF, XMP, etc.)</label>
+                    </div>
+                    
+                    <div class="advanced-options">
+                        <button class="advanced-toggle" id="advancedToggle" aria-expanded="false">
+                            <span class="advanced-toggle-icon">▶</span> Advanced Options
+                        </button>
+                        
+                        <div class="advanced-panel" id="advancedPanel">
+                            <div class="resize-options">
+                                <div class="checkbox-option">
+                                    <input type="checkbox" id="resizeOption" />
+                                    <label for="resizeOption">Resize image</label>
+                                </div>
+                                
+                                <div id="resizeDimensions" style="display: none;">
+                                    <div class="dimension-inputs">
+                                        <div class="input-group">
+                                            <label for="widthInput">Width (px)</label>
+                                            <input type="number" id="widthInput" min="1" />
+                                        </div>
+                                        
+                                        <span>×</span>
+                                        
+                                        <div class="input-group">
+                                            <label for="heightInput">Height (px)</label>
+                                            <input type="number" id="heightInput" min="1" />
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="checkbox-option">
+                                        <input type="checkbox" id="maintainAspectRatio" checked />
+                                        <label for="maintainAspectRatio">Maintain aspect ratio</label>
+                                    </div>
+                                    
+                                    <div class="dimension-inputs" style="margin-top: 15px;">
+                                        <div class="input-group">
+                                            <label for="scalePercent">Scale (%)</label>
+                                            <input type="number" id="scalePercent" value="100" min="1" max="100" />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             
-                            <div id="resizeDimensions" style="display: none;">
-                                <div class="dimension-inputs">
-                                    <div class="input-group">
-                                        <label for="widthInput">Width (px)</label>
-                                        <input type="number" id="widthInput" min="1" />
-                                    </div>
-                                    
-                                    <span>×</span>
-                                    
-                                    <div class="input-group">
-                                        <label for="heightInput">Height (px)</label>
-                                        <input type="number" id="heightInput" min="1" />
+                            <!-- Format-specific options -->
+                            <div class="format-specific-options">
+                                <!-- WebP Options -->
+                                <div id="webpOptions" class="format-options-panel">
+                                    <h4>WebP Options</h4>
+                                    <div class="option-group">
+                                        <div class="checkbox-option">
+                                            <input type="checkbox" id="webpAlpha" checked />
+                                            <label for="webpAlpha">Include alpha channel</label>
+                                        </div>
                                     </div>
                                 </div>
                                 
-                                <div class="checkbox-option">
-                                    <input type="checkbox" id="maintainAspectRatio" checked />
-                                    <label for="maintainAspectRatio">Maintain aspect ratio</label>
+                                <!-- JPEG Options -->
+                                <div id="jpegOptions" class="format-options-panel" style="display: none;">
+                                    <h4>JPEG Options</h4>
+                                    <div class="option-group">
+                                        <div class="checkbox-option">
+                                            <input type="checkbox" id="jpegProgressive" />
+                                            <label for="jpegProgressive">Progressive loading</label>
+                                        </div>
+                                    </div>
                                 </div>
                                 
-                                <div class="dimension-inputs" style="margin-top: 15px;">
-                                    <div class="input-group">
-                                        <label for="scalePercent">Scale (%)</label>
-                                        <input type="number" id="scalePercent" value="100" min="1" max="100" />
+                                <!-- PNG Options -->
+                                <div id="pngOptions" class="format-options-panel" style="display: none;">
+                                    <h4>PNG Options</h4>
+                                    <div class="option-group">
+                                        <label for="pngCompression">Compression Level</label>
+                                        <div class="dimension-inputs" style="margin-top: 5px;">
+                                            <input type="range" id="pngCompression" min="0" max="9" value="6" style="width: 100%;">
+                                            <span id="pngCompressionValue" style="min-width: 30px; text-align: center;">6</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- AVIF Options -->
+                                <div id="avifOptions" class="format-options-panel" style="display: none;">
+                                    <h4>AVIF Options</h4>
+                                    <div class="option-group">
+                                        <div class="checkbox-option">
+                                            <input type="checkbox" id="avifLowDataMode" />
+                                            <label for="avifLowDataMode">Low data mode (faster decode)</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Format-specific options -->
-                        <div class="format-specific-options">
-                            <!-- WebP Options -->
-                            <div id="webpOptions" class="format-options-panel">
-                                <h4>WebP Options</h4>
-                                <div class="option-group">
-                                    <div class="checkbox-option">
-                                        <input type="checkbox" id="webpAlpha" checked />
-                                        <label for="webpAlpha">Include alpha channel</label>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- JPEG Options -->
-                            <div id="jpegOptions" class="format-options-panel" style="display: none;">
-                                <h4>JPEG Options</h4>
-                                <div class="option-group">
-                                    <div class="checkbox-option">
-                                        <input type="checkbox" id="jpegProgressive" />
-                                        <label for="jpegProgressive">Progressive loading</label>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- PNG Options -->
-                            <div id="pngOptions" class="format-options-panel" style="display: none;">
-                                <h4>PNG Options</h4>
-                                <div class="option-group">
-                                    <label for="pngCompression">Compression Level</label>
-                                    <div class="dimension-inputs" style="margin-top: 5px;">
-                                        <input type="range" id="pngCompression" min="0" max="9" value="6" style="width: 100%;">
-                                        <span id="pngCompressionValue" style="min-width: 30px; text-align: center;">6</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- AVIF Options -->
-                            <div id="avifOptions" class="format-options-panel" style="display: none;">
-                                <h4>AVIF Options</h4>
-                                <div class="option-group">
-                                    <div class="checkbox-option">
-                                        <input type="checkbox" id="avifLowDataMode" />
-                                        <label for="avifLowDataMode">Low data mode (faster decode)</label>
-                                    </div>
-                                </div>
-                            </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quality-control">
+                <div class="panel-title">Quality Settings</div>
+                <label for="qualitySlider">Quality: <span id="qualityValue">90</span>%</label>
+                <input type="range" id="qualitySlider" min="0" max="100" value="90">
+                <div class="quality-note">Note: Quality setting applies to lossy formats (WebP, JPEG, AVIF)</div>
+                
+                <div class="size-optimization">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="sizeOptimizationToggle" />
+                        <label for="sizeOptimizationToggle">Optimize for target file size</label>
+                    </div>
+                    
+                    <div id="sizeOptimizationOptions" style="display: none; margin-top: 10px;">
+                        <div class="option-group">
+                            <label for="targetFileSize">Target Size (KB):</label>
+                            <input type="number" id="targetFileSize" min="1" value="200" style="width: 80px; margin-left: 10px; padding: 5px;">
+                        </div>
+                        <div class="quality-note" style="margin-top: 5px;">
+                            The converter will automatically adjust quality to meet the target size.
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="quality-control">
-            <div class="panel-title">Quality Settings</div>
-            <label for="qualitySlider">Quality: <span id="qualityValue">90</span>%</label>
-            <input type="range" id="qualitySlider" min="0" max="100" value="90">
-            <div class="quality-note">Note: Quality setting applies to lossy formats (WebP, JPEG, AVIF)</div>
-            
-            <div class="size-optimization">
-                <div class="checkbox-option">
-                    <input type="checkbox" id="sizeOptimizationToggle" />
-                    <label for="sizeOptimizationToggle">Optimize for target file size</label>
-                </div>
-                
-                <div id="sizeOptimizationOptions" style="display: none; margin-top: 10px;">
-                    <div class="option-group">
-                        <label for="targetFileSize">Target Size (KB):</label>
-                        <input type="number" id="targetFileSize" min="1" value="200" style="width: 80px; margin-left: 10px; padding: 5px;">
-                    </div>
-                    <div class="quality-note" style="margin-top: 5px;">
-                        The converter will automatically adjust quality to meet the target size.
-                    </div>
-                </div>
+        <!-- Content Column (Right) -->
+        <div class="content-column">
+            <div class="drop-zone" id="dropZone">
+                <p>Drag and drop image files here or</p>
+                <input type="file" id="fileInput" accept="image/*" multiple>
+                <button class="btn" onclick="document.getElementById('fileInput').click()">
+                    <span style="margin-right: 8px;">📁</span> Select Files
+                </button>
             </div>
-        </div>
 
-        <div class="drop-zone" id="dropZone">
-            <p>Drag and drop image files here or</p>
-            <input type="file" id="fileInput" accept="image/*" multiple>
-            <button class="btn" onclick="document.getElementById('fileInput').click()">
-                <span style="margin-right: 8px;">📁</span> Select Files
+            <div id="fileList"></div>
+            
+            <button id="downloadAll" class="btn" style="display: none; margin-top: 20px; padding: 12px 24px; transition: all 0.3s ease;">
+                <span style="margin-right: 8px;">⬇️</span> Download All Files
             </button>
         </div>
-
-        <div id="fileList"></div>
-        
-        <button id="downloadAll" class="btn" style="display: none; margin-top: 20px; padding: 12px 24px; transition: all 0.3s ease;">
-            <span style="margin-right: 8px;">⬇️</span> Download All Files
-        </button>
     </div>
 
     <!-- JavaScript files -->

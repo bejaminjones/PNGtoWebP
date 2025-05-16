@@ -5,7 +5,7 @@
     border-radius: 8px;
     padding: 40px 20px;
     text-align: center;
-    margin: 25px 0;
+    margin-bottom: 20px;
     background-color: var(--drop-zone-bg);
     transition: all 0.3s ease;
 }
@@ -23,4 +23,16 @@
 
 #fileInput {
     display: none;
+}
+
+/* Make drop zone more prominent in desktop view */
+@media (min-width: 1024px) {
+    .drop-zone {
+        padding: 60px 20px;
+        margin-top: 0;
+    }
+    
+    .drop-zone p {
+        font-size: 18px;
+    }
 }

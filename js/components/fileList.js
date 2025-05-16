@@ -84,6 +84,15 @@ const FileList = {
         fileItem.className = 'file-item';
         fileItem.dataset.filename = file.name;
         
+        // Get the selected output format
+        const outputFormat = document.getElementById('outputFormat').value;
+        
+        // Get the file name without extension
+        const baseName = file.name.replace(/\.[^/.]+$/, "");
+        
+        // Create the target file name
+        const targetFileName = `${baseName}.${outputFormat}`;
+        
         // Create a basic file structure
         fileItem.innerHTML = `
             <div class="file-thumbnail">
@@ -92,7 +101,7 @@ const FileList = {
                 </div>
             </div>
             <div class="file-info">
-                <div class="file-name">${file.name}</div>
+                <div class="file-name">${targetFileName}</div>
                 <div class="file-size">${FormatUtils.formatFileSize(file.size)}</div>
             </div>
             <div class="file-status">
@@ -286,7 +295,7 @@ const FileList = {
                 <div class="thumbnail-half">
                     <img src="${convertedThumbnailUrl}" class="thumbnail-img" alt="Converted">
                 </div>
-                <div class="format-badge">${result.originalFormat.toUpperCase()} → ${result.format.toUpperCase()}</div>
+                <div class="format-badge">${result.format.toUpperCase()}</div>
             `;
             
             thumbnailContainer.appendChild(comparisonDiv);
@@ -296,6 +305,12 @@ const FileList = {
                 URL.revokeObjectURL(originalThumbnailUrl);
                 URL.revokeObjectURL(convertedThumbnailUrl);
             }, Config.processing.thumbnailTimeout);
+            
+            // Update the filename display in the file info section
+            const fileNameElement = fileItem.querySelector('.file-name');
+            if (fileNameElement) {
+                fileNameElement.textContent = result.fileName;
+            }
             
             // Add file size info
             const fileSizeInfo = document.createElement('div');
@@ -381,4 +396,4 @@ const FileList = {
             alert('Failed to create zip file. Please try downloading files individually.');
         });
     }
-};
+}; 
