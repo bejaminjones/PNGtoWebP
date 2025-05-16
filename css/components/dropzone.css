@@ -1,0 +1,26 @@
+/* Drop Zone Styles */
+
+.drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    margin: 25px 0;
+    background-color: var(--drop-zone-bg);
+    transition: all 0.3s ease;
+}
+
+.drop-zone p {
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.drop-zone.dragover {
+    border-color: var(--dragover-border);
+    background-color: var(--dragover-bg);
+    transform: scale(1.01);
+}
+
+#fileInput {
+    display: none;
+}
