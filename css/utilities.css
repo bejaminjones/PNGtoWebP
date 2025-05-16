@@ -1,0 +1,110 @@
+/* Utility Classes */
+
+/* Theme toggle */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.theme-toggle-icon {
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+/* File list and item utilities */
+#fileList {
+    margin-top: 30px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--panel-bg);
+}
+
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.file-item:hover {
+    background-color: var(--highlight-color);
+}
+
+.file-item:last-child {
+    border-bottom: none;
+}
+
+.file-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin-right: 15px;
+}
+
+.file-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.file-size {
+    font-size: 12px;
+    color: var(--secondary-text);
+}
+
+.file-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 160px;
+}
+
+.processing-time {
+    font-size: 11px;
+    color: var(--secondary-text);
+    margin-top: 2px;
+}
+
+.status {
+    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.status.success {
+    color: var(--success-color);
+    background-color: rgba(76, 201, 240, 0.1);
+}
+
+.status.error {
+    color: var(--error-color);
+    background-color: rgba(239, 71, 111, 0.1);
+}
+
+/* Batch processing */
+.batch-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: var(--highlight-color);
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 5px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.batch-info {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.file-stats {
+    font-size: 12px;
+    color: var(--secondary-text);
+    margin-top: 8px;
+    padding-top: 5px;
+    border-top: 1px dashed var(--border-color);
+}
