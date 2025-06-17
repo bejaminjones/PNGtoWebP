@@ -59,6 +59,10 @@
             align-items: center;
             padding: 10px;
             border-bottom: 1px solid #eee;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         .file-item:last-child {
             border-bottom: none;
@@ -95,16 +99,23 @@
 <body>
     <div class="container">
         <h1>PNG to WebP Converter</h1>
+        <div id="browserInfo" style="background: #e3f2fd; padding: 8px; border-radius: 4px; margin-bottom: 15px; font-size: 14px; display: none;">
+            <span id="browserText"></span>
+        </div>
         <div class="quality-control">
             <label for="qualitySlider">WebP Quality: <span id="qualityValue">90</span>%</label>
             <input type="range" id="qualitySlider" min="0" max="100" value="90">
         </div>
         <div class="drop-zone" id="dropZone">
-            <p>Drag and drop PNG files here or</p>
-            <input type="file" id="fileInput" accept=".png" multiple>
+            <p>Drag and drop image files here or</p>
+            <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff,.webp,.avif" multiple>
             <button class="btn" onclick="document.getElementById('fileInput').click()">Select Files</button>
         </div>
         <div id="fileList"></div>
+        <div id="conversionSummary" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 20px 0; text-align: center;">
+            <h3 style="margin: 0 0 10px 0; color: #333;">Conversion Summary</h3>
+            <div id="summaryStats" style="font-size: 14px; color: #666;"></div>
+        </div>
         <button id="downloadAll" class="btn" style="display: none; margin-top: 20px;">Download All Files</button>
     </div>
 
@@ -113,7 +124,38 @@
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
         const downloadAllBtn = document.getElementById('downloadAll');
+        const conversionSummary = document.getElementById('conversionSummary');
+        const summaryStats = document.getElementById('summaryStats');
         let convertedFiles = [];
+
+        function updateConversionSummary() {
+            if (convertedFiles.length === 0) {
+                conversionSummary.style.display = 'none';
+                return;
+            }
+
+            const totalOriginalSize = convertedFiles.reduce((sum, file) => sum + file.originalSize, 0);
+            const totalCompressedSize = convertedFiles.reduce((sum, file) => sum + file.compressedSize, 0);
+            const overallRatio = calculateCompressionRatio(totalOriginalSize, totalCompressedSize);
+            const indicator = getCompressionIndicator(overallRatio);
+
+            const successfulCompressions = convertedFiles.filter(f => f.compressionRatio > 0).length;
+            const failedCompressions = convertedFiles.filter(f => f.compressionRatio <= 0).length;
+
+            summaryStats.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 10px;">
+                    <div><strong>${convertedFiles.length}</strong><br>Files Processed</div>
+                    <div><strong>${formatFileSize(totalOriginalSize)}</strong><br>Original Size</div>
+                    <div><strong>${formatFileSize(totalCompressedSize)}</strong><br>WebP Size</div>
+                    <div style="color: ${indicator.color};"><strong>${overallRatio > 0 ? '-' : '+'}${Math.abs(overallRatio)}%</strong><br>Size Change</div>
+                </div>
+                <div style="font-size: 12px; color: #888;">
+                    ${successfulCompressions} files compressed successfully • ${failedCompressions} files resulted in larger size
+                </div>
+            `;
+
+            conversionSummary.style.display = 'block';
+        }
 
         // Handle download all button
         downloadAllBtn.addEventListener('click', async () => {
@@ -138,6 +180,7 @@
             // Clear the converted files array
             convertedFiles = [];
             downloadAllBtn.style.display = 'none';
+            updateConversionSummary();
         });
 
         // Prevent default drag behaviors
@@ -167,6 +210,44 @@
             qualityValue.textContent = e.target.value;
         });
 
+        // Display browser information on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const browser = detectBrowser();
+            const browserInfo = document.getElementById('browserInfo');
+            const browserText = document.getElementById('browserText');
+            
+            if (browser.isSafari) {
+                browserText.innerHTML = `
+                    <strong>🍎 Safari detected - Limited WebP compression</strong><br>
+                    <div style="margin-top: 8px; padding: 8px; background: rgba(220, 53, 69, 0.1); border-left: 3px solid #dc3545; font-size: 13px;">
+                        ⚠️ <strong>Notice:</strong> Safari's WebP compression often produces larger files than the original images.<br>
+                        📈 <strong>For best results:</strong> Use <strong>Chrome</strong>, <strong>Brave</strong>, or other Chromium-based browsers.<br>
+                        💡 <strong>Tip:</strong> Try the same images in Chrome/Brave to see significantly better compression!
+                    </div>
+                `;
+                browserInfo.style.background = '#f8d7da';
+                browserInfo.style.color = '#721c24';
+                browserInfo.style.display = 'block';
+            } else if (browser.isBrave) {
+                browserText.innerHTML = '🦁 Brave detected - Using advanced compression with web workers';
+                browserInfo.style.background = '#d4edda';
+                browserInfo.style.color = '#155724';
+                browserInfo.style.display = 'block';
+            } else if (browser.isChrome) {
+                browserText.innerHTML = '🌐 Chrome detected - Using advanced compression with web workers';
+                browserInfo.style.background = '#d4edda';
+                browserInfo.style.color = '#155724';
+                browserInfo.style.display = 'block';
+            } else if (browser.isFirefox) {
+                browserText.innerHTML = '🦊 Firefox detected - Using advanced compression';
+                browserInfo.style.background = '#d4edda';
+                browserInfo.style.color = '#155724';
+                browserInfo.style.display = 'block';
+            }
+            
+            console.log('Browser compatibility check:', browser);
+        });
+
         function preventDefaults (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -191,30 +272,504 @@
             files.forEach(processFile);
         }
 
-        function createFileListItem(file) {
-            const item = document.createElement('div');
-            item.className = 'file-item';
-            item.innerHTML = `
-                <span>${file.name}</span>
-                <span class="status">Processing...</span>
-            `;
-            fileList.appendChild(item);
-            return item;
-        }
+        // Supported image formats with MIME types
+        const SUPPORTED_FORMATS = {
+            'image/jpeg': { ext: ['jpg', 'jpeg'], name: 'JPEG' },
+            'image/png': { ext: ['png'], name: 'PNG' },
+            'image/gif': { ext: ['gif'], name: 'GIF' },
+            'image/bmp': { ext: ['bmp'], name: 'BMP' },
+            'image/tiff': { ext: ['tiff', 'tif'], name: 'TIFF' },
+            'image/webp': { ext: ['webp'], name: 'WebP' },
+            'image/avif': { ext: ['avif'], name: 'AVIF' }
+        };
 
-        async function processFile(file) {
-            if (!file.type.includes('png')) {
-                const item = createFileListItem(file);
-                item.querySelector('.status').textContent = 'Error: Not a PNG file';
-                item.querySelector('.status').classList.add('error');
-                return;
+        function detectImageFormat(file) {
+            // Primary: Use MIME type from file
+            if (file.type && SUPPORTED_FORMATS[file.type]) {
+                return {
+                    mimeType: file.type,
+                    name: SUPPORTED_FORMATS[file.type].name,
+                    isSupported: true
+                };
             }
 
-            const item = createFileListItem(file);
-            const statusElement = item.querySelector('.status');
+            // Fallback: Check file extension
+            const extension = file.name.toLowerCase().split('.').pop();
+            for (const [mimeType, info] of Object.entries(SUPPORTED_FORMATS)) {
+                if (info.ext.includes(extension)) {
+                    return {
+                        mimeType: mimeType,
+                        name: info.name,
+                        isSupported: true,
+                        detectedBy: 'extension'
+                    };
+                }
+            }
+
+            return {
+                mimeType: file.type || 'unknown',
+                name: 'Unknown',
+                isSupported: false
+            };
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function calculateCompressionRatio(originalSize, compressedSize) {
+            if (originalSize === 0) return 0;
+            const ratio = ((originalSize - compressedSize) / originalSize) * 100;
+            return Math.round(ratio * 10) / 10; // Round to 1 decimal place
+        }
+
+        function getCompressionIndicator(ratio) {
+            if (ratio > 50) return { color: '#4caf50', text: 'Excellent', icon: '🟢' };
+            if (ratio > 25) return { color: '#8bc34a', text: 'Good', icon: '🟡' };
+            if (ratio > 0) return { color: '#ff9800', text: 'Minimal', icon: '🟠' };
+            return { color: '#f44336', text: 'Larger', icon: '🔴' };
+        }
+
+        function getCompressionStrategy(formatName, hasTransparency, fileSize) {
+            const fileSizeMB = fileSize / (1024 * 1024);
+            const browser = detectBrowser();
+            const safariSuffix = browser.isSafari ? ' (Safari-optimized)' : '';
+            
+            switch (formatName) {
+                case 'PNG':
+                    return hasTransparency ? `Lossless (transparency preserved)${safariSuffix}` : `Optimized for PNG${safariSuffix}`;
+                case 'JPEG':
+                    return fileSizeMB < 0.1 ? `Conservative (small JPEG)${safariSuffix}` : `Optimized for JPEG${safariSuffix}`;
+                case 'GIF':
+                    return `Aggressive compression${safariSuffix}`;
+                case 'BMP':
+                case 'TIFF':
+                    return fileSizeMB > 5 ? `High compression (large file)${safariSuffix}` : `Aggressive compression${safariSuffix}`;
+                case 'WebP':
+                case 'AVIF':
+                    return `Re-compression (modern format)${safariSuffix}`;
+                default:
+                    return `Standard compression${safariSuffix}`;
+            }
+        }
+
+        async function getImageDimensions(file) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    resolve({ width: img.naturalWidth, height: img.naturalHeight });
+                    URL.revokeObjectURL(img.src);
+                };
+                img.onerror = () => {
+                    resolve({ width: 0, height: 0 });
+                    URL.revokeObjectURL(img.src);
+                };
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        async function hasTransparency(file) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    
+                    // Check alpha channel (every 4th value)
+                    for (let i = 3; i < data.length; i += 4) {
+                        if (data[i] < 255) {
+                            resolve(true);
+                            URL.revokeObjectURL(img.src);
+                            return;
+                        }
+                    }
+                    resolve(false);
+                    URL.revokeObjectURL(img.src);
+                };
+                img.onerror = () => {
+                    resolve(false);
+                    URL.revokeObjectURL(img.src);
+                };
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        function detectBrowser() {
+            const userAgent = navigator.userAgent;
+            const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
+            const isChrome = /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
+            const isBrave = navigator.brave && typeof navigator.brave.isBrave === 'function';
+            const isFirefox = /Firefox/.test(userAgent);
+            
+            return {
+                isSafari,
+                isChrome,
+                isBrave,
+                isFirefox,
+                supportsWebWorker: typeof Worker !== 'undefined',
+                supportsOffscreenCanvas: typeof OffscreenCanvas !== 'undefined'
+            };
+        }
+
+        async function convertToWebPSafariFallback(file, format, baseQuality) {
+            console.log('🍎 Safari: Starting compression for', file.name, 'Size:', (file.size / 1024).toFixed(1) + 'KB');
+            
+            // Skip browser-image-compression entirely for Safari and go directly to canvas method
+            console.log('🍎 Safari: Skipping browser-image-compression library, using direct canvas method');
+            return await canvasToWebPOptimized(file, format, baseQuality);
+        }
+
+        async function canvasToWebP(file, quality) {
+            const image = await createImageBitmap(file);
+            const canvas = document.createElement('canvas');
+            canvas.width = image.width;
+            canvas.height = image.height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(image, 0, 0);
+
+            return new Promise(resolve => {
+                canvas.toBlob(resolve, 'image/webp', quality);
+            });
+        }
+
+        async function canvasToWebPOptimized(file, format, baseQuality) {
+            console.log('🍎 Safari: Using optimized canvas method for', format.name, 'format');
+            
+            try {
+                // Apply format-specific quality adjustments
+                let quality = baseQuality / 100;
+                
+                console.log('🍎 Safari: Base quality:', baseQuality, '% -> decimal:', quality);
+                
+                switch (format.name) {
+                    case 'PNG':
+                        const hasAlpha = await hasTransparency(file);
+                        if (hasAlpha) {
+                            quality = 0.95; // High quality for transparency preservation
+                        } else {
+                            // More aggressive compression for opaque PNG
+                            // Extra aggressive for small, already-optimized PNGs
+                            const fileSizeKB = file.size / 1024;
+                            if (fileSizeKB < 200) {
+                                // Very small PNGs need ultra-aggressive compression
+                                quality = Math.min(0.3, quality * 0.4);
+                            } else if (fileSizeKB < 500) {
+                                // Medium PNGs need very aggressive compression
+                                quality = Math.min(0.4, quality * 0.5);
+                            } else {
+                                // Large PNGs need aggressive compression
+                                quality = Math.min(0.5, quality * 0.6);
+                            }
+                        }
+                        console.log('🍎 Safari: PNG transparency:', hasAlpha, ', size:', (file.size/1024).toFixed(1)+'KB', '-> quality:', quality);
+                        break;
+                    case 'JPEG':
+                        // Conservative for already compressed JPEG
+                        quality = Math.min(0.85, quality * 0.9);
+                        console.log('🍎 Safari: JPEG quality adjusted to:', quality);
+                        break;
+                    case 'GIF':
+                        // Aggressive compression for GIF
+                        quality = Math.min(0.65, quality * 0.7);
+                        console.log('🍎 Safari: GIF quality adjusted to:', quality);
+                        break;
+                    case 'BMP':
+                    case 'TIFF':
+                        // Very aggressive for uncompressed formats
+                        quality = Math.min(0.6, quality * 0.6);
+                        console.log('🍎 Safari: Uncompressed format quality adjusted to:', quality);
+                        break;
+                    default:
+                        // Default strategy - moderate compression
+                        quality = Math.min(0.8, quality * 0.85);
+                        console.log('🍎 Safari: Default quality adjusted to:', quality);
+                }
+                
+                console.log('🍎 Safari: Creating image bitmap...');
+                const image = await createImageBitmap(file);
+                console.log('🍎 Safari: Image bitmap created, dimensions:', image.width, 'x', image.height);
+                
+                const canvas = document.createElement('canvas');
+                
+                // For Safari, be more aggressive with resizing to improve compression
+                let { width, height } = image;
+                const originalSize = file.size;
+                let resizeRatio = 1;
+                
+                // Aggressive resizing strategy for Safari
+                if (originalSize > 200 * 1024) { // > 200KB
+                    // For larger files, reduce dimensions more aggressively
+                    const maxDimension = Math.min(1600, Math.max(width, height) * 0.8);
+                    if (width > maxDimension || height > maxDimension) {
+                        resizeRatio = Math.min(maxDimension / width, maxDimension / height);
+                    }
+                } else {
+                    // For smaller files, try moderate resizing
+                    const maxDimension = Math.min(1400, Math.max(width, height) * 0.9);
+                    if (width > maxDimension || height > maxDimension) {
+                        resizeRatio = Math.min(maxDimension / width, maxDimension / height);
+                    }
+                }
+                
+                if (resizeRatio < 1) {
+                    width = Math.round(width * resizeRatio);
+                    height = Math.round(height * resizeRatio);
+                    console.log(`🍎 Safari: Aggressive resizing from ${image.width}x${image.height} to ${width}x${height} (${(resizeRatio*100).toFixed(1)}%)`);
+                } else {
+                    console.log('🍎 Safari: Keeping original dimensions:', width, 'x', height);
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                console.log('🍎 Safari: Canvas created, getting context...');
+                const ctx = canvas.getContext('2d');
+                
+                if (!ctx) {
+                    throw new Error('Failed to get 2D context from canvas');
+                }
+                
+                // Use better image rendering for Safari
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
+                console.log('🍎 Safari: Drawing image to canvas...');
+                ctx.drawImage(image, 0, 0, width, height);
+                
+                console.log('🍎 Safari: Converting canvas to WebP blob with quality:', quality);
+                
+                return new Promise((resolve, reject) => {
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            const originalSizeKB = file.size / 1024;
+                            const webpSizeKB = blob.size / 1024;
+                            const compressionRatio = ((originalSizeKB - webpSizeKB) / originalSizeKB * 100);
+                            
+                            console.log('🍎 Safari: WebP conversion completed!');
+                            console.log('🍎 Safari: Original:', originalSizeKB.toFixed(1) + 'KB → WebP:', webpSizeKB.toFixed(1) + 'KB');
+                            console.log('🍎 Safari: Compression ratio:', compressionRatio.toFixed(1) + '%');
+                            
+                            // Check if compression was successful
+                            if (blob.size >= file.size) {
+                                console.warn('🍎 Safari: WebP file is not smaller than original, trying ultra-aggressive compression...');
+                                
+                                // Try one more time with ultra-low quality
+                                canvas.toBlob((ultraBlob) => {
+                                    if (ultraBlob && ultraBlob.size < file.size) {
+                                        console.log('🍎 Safari: Ultra-aggressive compression successful!', (ultraBlob.size / 1024).toFixed(1) + 'KB');
+                                        resolve(ultraBlob);
+                                    } else {
+                                        console.warn('🍎 Safari: Even ultra-aggressive compression failed to reduce size');
+                                        // Return the better of the two attempts
+                                        resolve(ultraBlob && ultraBlob.size < blob.size ? ultraBlob : blob);
+                                    }
+                                }, 'image/webp', 0.1); // Ultra-low quality
+                            } else {
+                                console.log('🍎 Safari: Compression successful!');
+                                resolve(blob);
+                            }
+                        } else {
+                            console.error('🍎 Safari: Failed to create WebP blob');
+                            reject(new Error('Canvas toBlob returned null'));
+                        }
+                    }, 'image/webp', quality);
+                });
+                
+            } catch (error) {
+                console.error('🍎 Safari: Canvas conversion failed:', error);
+                
+                // Last resort: try basic canvas conversion
+                console.log('🍎 Safari: Attempting basic canvas conversion...');
+                try {
+                    const image = await createImageBitmap(file);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(image, 0, 0);
+                    
+                    return new Promise((resolve, reject) => {
+                        canvas.toBlob((blob) => {
+                            if (blob) {
+                                console.log('🍎 Safari: Basic conversion successful!');
+                                resolve(blob);
+                            } else {
+                                reject(new Error('Basic canvas conversion failed'));
+                            }
+                        }, 'image/webp', 0.8);
+                    });
+                } catch (basicError) {
+                    console.error('🍎 Safari: Basic conversion also failed:', basicError);
+                    throw basicError;
+                }
+            }
+        }
+
+        async function convertToWebPAdvanced(file, format, dimensions) {
+            const qualitySlider = document.getElementById('qualitySlider');
+            const baseQuality = parseInt(qualitySlider.value);
+            const browser = detectBrowser();
+            
+            console.log('Browser detection:', browser);
+            
+            // Safari-specific handling
+            if (browser.isSafari) {
+                console.log('🍎 Safari detected - using Safari-specific compression method');
+                try {
+                    const result = await convertToWebPSafariFallback(file, format, baseQuality);
+                    if (!result) {
+                        throw new Error('Safari compression returned null result');
+                    }
+                    console.log('🍎 Safari compression completed successfully');
+                    return result;
+                } catch (safariError) {
+                    console.error('🍎 Safari compression failed:', safariError);
+                    
+                    // Ultimate Safari fallback - basic canvas method
+                    console.log('🍎 Safari: Attempting ultimate fallback...');
+                    try {
+                        const image = await createImageBitmap(file);
+                        const canvas = document.createElement('canvas');
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(image, 0, 0);
+                        
+                        return new Promise((resolve, reject) => {
+                            canvas.toBlob((blob) => {
+                                if (blob) {
+                                    console.log('🍎 Safari: Ultimate fallback successful!');
+                                    resolve(blob);
+                                } else {
+                                    reject(new Error('Safari ultimate fallback failed'));
+                                }
+                            }, 'image/webp', 0.8);
+                        });
+                    } catch (ultimateError) {
+                        console.error('🍎 Safari: All methods failed:', ultimateError);
+                        throw new Error(`Safari compression failed: ${safariError.message}`);
+                    }
+                }
+            }
+            
+            // Format-specific optimization strategies
+            let compressionOptions = {
+                fileType: 'image/webp',
+                useWebWorker: browser.supportsWebWorker && !browser.isSafari,
+                preserveExif: false,
+                initialQuality: baseQuality / 100
+            };
+
+            // Strategy based on source format
+            switch (format.name) {
+                case 'PNG':
+                    // PNG often has transparency, check for it
+                    const hasAlpha = await hasTransparency(file);
+                    if (hasAlpha) {
+                        // Use lossless WebP for PNG with transparency
+                        compressionOptions.initialQuality = 1.0;
+                        compressionOptions.alwaysKeepResolution = true;
+                    } else {
+                        // PNG without transparency can be compressed more aggressively
+                        compressionOptions.initialQuality = Math.max(0.7, baseQuality / 100);
+                    }
+                    break;
+
+                case 'JPEG':
+                    // JPEG is already compressed, be more conservative
+                    compressionOptions.initialQuality = Math.max(0.8, baseQuality / 100);
+                    // For very high quality JPEGs, reduce compression
+                    if (file.size < 100 * 1024) { // Less than 100KB
+                        compressionOptions.initialQuality = Math.max(0.85, baseQuality / 100);
+                    }
+                    break;
+
+                case 'GIF':
+                    // GIF is usually low quality, can compress more
+                    compressionOptions.initialQuality = Math.max(0.6, baseQuality / 100);
+                    compressionOptions.alwaysKeepResolution = true;
+                    break;
+
+                case 'BMP':
+                case 'TIFF':
+                    // Uncompressed formats, can compress aggressively
+                    compressionOptions.initialQuality = Math.max(0.5, baseQuality / 100);
+                    // Set reasonable size limits for large uncompressed files
+                    if (file.size > 5 * 1024 * 1024) { // Larger than 5MB
+                        compressionOptions.maxSizeMB = Math.max(1, file.size / (1024 * 1024) * 0.3);
+                    }
+                    break;
+
+                case 'WebP':
+                case 'AVIF':
+                    // Already modern formats, re-compress only if beneficial
+                    compressionOptions.initialQuality = Math.max(0.9, baseQuality / 100);
+                    break;
+
+                default:
+                    // Default strategy
+                    compressionOptions.initialQuality = baseQuality / 100;
+            }
+
+            // Size-based adjustments
+            const fileSizeMB = file.size / (1024 * 1024);
+            if (fileSizeMB > 10) {
+                // Large files need more aggressive compression
+                compressionOptions.maxSizeMB = Math.max(2, fileSizeMB * 0.4);
+            } else if (fileSizeMB > 5) {
+                compressionOptions.maxSizeMB = Math.max(1, fileSizeMB * 0.5);
+            }
+
+            // Dimension-based adjustments
+            const totalPixels = dimensions.width * dimensions.height;
+            if (totalPixels > 4000000) { // Larger than ~2000x2000
+                // Very high resolution images
+                compressionOptions.maxWidthOrHeight = Math.max(2048, Math.min(dimensions.width, dimensions.height));
+            }
 
             try {
-                // Convert PNG to WebP
+                // Log compression strategy for debugging
+                console.log(`Compressing ${format.name} file (${(file.size / 1024).toFixed(1)}KB) with options:`, compressionOptions);
+                
+                // Use browser-image-compression for advanced compression
+                const compressedFile = await imageCompression(file, compressionOptions);
+                
+                console.log(`Compression result: ${compressedFile.type}, size: ${(compressedFile.size / 1024).toFixed(1)}KB`);
+                
+                // Convert to WebP blob if the library didn't output WebP
+                if (compressedFile.type !== 'image/webp') {
+                    // Fallback to canvas method for WebP conversion
+                    const image = await createImageBitmap(compressedFile);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(image, 0, 0);
+
+                    return new Promise(resolve => {
+                        canvas.toBlob(resolve, 'image/webp', compressionOptions.initialQuality);
+                    });
+                }
+
+                return compressedFile;
+            } catch (error) {
+                console.error('Advanced compression failed, falling back to basic method:', error);
+                
+                // Fallback to basic canvas conversion
                 const image = await createImageBitmap(file);
                 const canvas = document.createElement('canvas');
                 canvas.width = image.width;
@@ -223,26 +778,162 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(image, 0, 0);
 
-                const webpBlob = await new Promise(resolve => {
-                    const quality = document.getElementById('qualitySlider').value / 100;
-                    canvas.toBlob(resolve, 'image/webp', quality);
+                return new Promise(resolve => {
+                    canvas.toBlob(resolve, 'image/webp', baseQuality / 100);
                 });
+            }
+        }
 
-                // Store the converted file
+        function createFileListItem(file) {
+            const format = detectImageFormat(file);
+            const item = document.createElement('div');
+            item.className = 'file-item';
+            item.style.flexDirection = 'column';
+            item.style.alignItems = 'stretch';
+            item.style.padding = '15px';
+            
+            const formatBadge = format.isSupported 
+                ? `<span style="background: #e3f2fd; color: #1976d2; padding: 2px 6px; border-radius: 3px; font-size: 12px; margin-left: 8px;">${format.name}</span>`
+                : `<span style="background: #ffebee; color: #d32f2f; padding: 2px 6px; border-radius: 3px; font-size: 12px; margin-left: 8px;">Unsupported</span>`;
+            
+            item.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div>
+                        <span style="font-weight: 500;">${file.name}</span>
+                        ${formatBadge}
+                        <div style="font-size: 12px; color: #666; margin-top: 2px;" class="original-info">
+                            ${formatFileSize(file.size)} • ${format.mimeType}
+                        </div>
+                    </div>
+                    <span class="status">Processing...</span>
+                </div>
+                <div class="conversion-results" style="display: none; background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 8px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px;">
+                        <div>
+                            <strong>Original:</strong>
+                            <div class="original-details" style="color: #666; margin-top: 2px;"></div>
+                        </div>
+                        <div>
+                            <strong>WebP:</strong>
+                            <div class="webp-details" style="color: #666; margin-top: 2px;"></div>
+                        </div>
+                    </div>
+                    <div class="compression-summary" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0; text-align: center; font-weight: 500;">
+                    </div>
+                </div>
+            `;
+            fileList.appendChild(item);
+            return { item, format };
+        }
+
+        async function processFile(file) {
+            const { item, format } = createFileListItem(file);
+            const statusElement = item.querySelector('.status');
+
+            // Check if format is supported
+            if (!format.isSupported) {
+                statusElement.textContent = `Error: ${format.name} format not supported`;
+                statusElement.classList.add('error');
+                return;
+            }
+
+            // Additional validation for file size (optional - prevent extremely large files)
+            const maxSize = 50 * 1024 * 1024; // 50MB limit
+            if (file.size > maxSize) {
+                statusElement.textContent = 'Error: File too large (max 50MB)';
+                statusElement.classList.add('error');
+                return;
+            }
+
+            try {
+                // Update status to show compression in progress
+                statusElement.textContent = '🔄 Analyzing image...';
+                
+                // Get image dimensions
+                const dimensions = await getImageDimensions(file);
+                
+                // Update status
+                statusElement.textContent = '⚙️ Applying advanced compression...';
+                
+                // Advanced WebP compression using browser-image-compression library
+                const webpBlob = await convertToWebPAdvanced(file, format, dimensions);
+
+                // Calculate compression results
+                const originalSize = file.size;
+                const webpSize = webpBlob.size;
+                const compressionRatio = calculateCompressionRatio(originalSize, webpSize);
+                const indicator = getCompressionIndicator(compressionRatio);
+
+                // Update UI with detailed results
+                const originalDetails = item.querySelector('.original-details');
+                const webpDetails = item.querySelector('.webp-details');
+                const compressionSummary = item.querySelector('.compression-summary');
+                const conversionResults = item.querySelector('.conversion-results');
+
+                originalDetails.innerHTML = `
+                    ${formatFileSize(originalSize)}<br>
+                    ${dimensions.width} × ${dimensions.height}px<br>
+                    ${format.name} format
+                `;
+
+                // Determine compression strategy used
+                const hasAlpha = format.name === 'PNG' ? await hasTransparency(file) : false;
+                const strategyNote = getCompressionStrategy(format.name, hasAlpha, file.size);
+                
+                webpDetails.innerHTML = `
+                    ${formatFileSize(webpSize)}<br>
+                    ${dimensions.width} × ${dimensions.height}px<br>
+                    WebP format (${document.getElementById('qualitySlider').value}% quality)<br>
+                    <small style="color: #888;">${strategyNote}</small>
+                `;
+
+                compressionSummary.innerHTML = `
+                    ${indicator.icon} <span style="color: ${indicator.color};">${indicator.text} Compression</span><br>
+                    <span style="color: ${indicator.color}; font-size: 16px;">
+                        ${compressionRatio > 0 ? '-' : '+'}${Math.abs(compressionRatio)}% size change
+                    </span>
+                `;
+
+                // Show the results section
+                conversionResults.style.display = 'block';
+
+                // Store the converted file with original filename extension replaced
+                const originalExtension = file.name.split('.').pop();
+                const nameWithoutExtension = file.name.substring(0, file.name.lastIndexOf('.'));
                 convertedFiles.push({
-                    name: file.name.replace('.png', '.webp'),
-                    blob: webpBlob
+                    name: `${nameWithoutExtension}.webp`,
+                    blob: webpBlob,
+                    originalSize: originalSize,
+                    compressedSize: webpSize,
+                    compressionRatio: compressionRatio
                 });
 
                 // Show download all button if there are files
                 downloadAllBtn.style.display = 'block';
 
-                statusElement.textContent = 'Converted successfully';
-                statusElement.classList.add('success');
+                // Update conversion summary
+                updateConversionSummary();
+
+                // Update status based on compression effectiveness
+                if (compressionRatio < 0) {
+                    statusElement.innerHTML = `⚠️ WebP is ${Math.abs(compressionRatio)}% larger`;
+                    statusElement.classList.add('error');
+                } else {
+                    statusElement.textContent = `✅ Converted successfully`;
+                    statusElement.classList.add('success');
+                }
             } catch (error) {
                 console.error('Error converting file:', error);
-                statusElement.textContent = 'Error converting file';
+                statusElement.textContent = '❌ Error converting file';
                 statusElement.classList.add('error');
+                
+                // Log detailed error information for debugging
+                console.error('File details:', {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    format: format
+                });
             }
         }
     </script>
